@@ -1,20 +1,62 @@
 <template>
   <div id="app">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div v-show="loading"  class="loading" >
+       <Spin size="large" tip="处理中..." />
+    </div>
+    <a-tabs default-active-key="2" @change="callback">
+      <a-tab-pane key="1" tab="产线数据处理">
+        <line-data @showLoading="showLoading" />
+      </a-tab-pane>
+      <a-tab-pane key="2" tab="AP数据处理" force-render>
+        <ap-data />
+      </a-tab-pane>
+    </a-tabs>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import LineData from './components/LineData.vue'
+import ApData from './components/ApData.vue'
+
+import { Tabs, Spin } from 'ant-design-vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    LineData,
+    ATabs: Tabs,
+    ATabPane: Tabs.TabPane,
+    Spin,
+    ApData
+  },
+  methods: {
+    callback (key) {
+      console.log(key)
+    },
+    showLoading (e) {
+      this.loading = e
+    }
+  },
+  data () {
+    return {
+      loading: false
+    }
   }
 }
 </script>
 
-<style lang="scss">
+<style lang="less">
 
+.loading{
+  margin: 0 auto;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+}
 </style>
