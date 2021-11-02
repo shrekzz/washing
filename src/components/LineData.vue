@@ -1,7 +1,7 @@
 <template>
   <div class="handle">
     <div class="content">
-      <div class="tips">1️.选择产线数据所在的目录</div>
+      <div class="tips" style="margin-top: 0">1️.选择产线数据所在的目录</div>
       <div class="getFileBox">
         <Button class="chooseBtn" >选择文件目录</Button>
         <label class="getFilePath">
@@ -11,8 +11,8 @@
       <div>
         <div class="tips">2.选择需要的行(只能输入数字)</div>
         <div class="btn-group">
-          <Button type="primary" class="add" @click="handleRow('add')">+</Button>
-          <Button type="primary" class="sub" @click="handleRow('')">-</Button>
+          <Button type="primary" class="add" @click="handleRow('add')">加一行</Button>
+          <Button type="primary" class="sub" @click="handleRow('')">减一行</Button>
         </div>
         <div class="input-group">
           <Input class="input-row" v-for="(item, index) in rows" :key="index" type="number" v-model="rows[index]" />
@@ -142,7 +142,7 @@ export default {
     font-size: 20px;
   }
   .content {
-    width: 70%;
+    width: 80%;
     padding: 0 10px;
     margin: 0 auto;
     .getFileBox {
@@ -164,8 +164,6 @@ export default {
     justify-content: space-between;
     .add, .sub{
       width: 48%;
-      font-weight: 500;
-      font-size: 18px;
     }
      .start, .open {
       width: 48%;
