@@ -8,7 +8,7 @@
         <line-data @showLoading="showLoading" />
       </a-tab-pane>
       <a-tab-pane key="2" tab="AP数据处理" force-render>
-        <ap-data />
+        <ap-data @showLoading="showLoading" />
       </a-tab-pane>
     </a-tabs>
   </div>

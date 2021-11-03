@@ -21,9 +21,9 @@
       </div>
     </div>
     <div class="btn-group">
-      <Button class="btn">开始</Button>
-      <Button class="btn" type="danger">清空工作目录</Button>
-      <Button class="btn" type="primary">打开工作目录</Button>
+      <Button class="btn" @click="ApDataHandle">开始</Button>
+      <Button class="btn" @click="clearDir" type="danger">清空工作目录</Button>
+      <Button class="btn" @click="openDir" type="primary">打开工作目录</Button>
     </div>
   </div>
 </template>
@@ -31,8 +31,10 @@
 <script>
 import { Button, Icon } from 'ant-design-vue'
 import { basename } from 'path'
-import { copyFile, existsSync, mkdir, readdir, stat } from 'fs'
-import { timeFormat, sizeFormat } from '../utils/utils'
+import { copyFile, existsSync, mkdir, readdir, stat, unlink, writeFile } from 'fs'
+import { timeFormat, sizeFormat, handleSheetList } from '../utils/utils'
+import { shell } from 'electron'
+import xlsx from 'node-xlsx'
 export default {
   name: 'ApData',
   components: {
@@ -41,28 +43,7 @@ export default {
   },
   data () {
     return {
-      fileList: [
-        {
-          name: 'abc.txt',
-          mtime: '2021/10/22/10:10',
-          size: '1024kb'
-        },
-        {
-          name: 'abc.txt',
-          mtime: '2021/10/22/10:10',
-          size: '1024kb'
-        },
-        {
-          name: 'abc.txt',
-          mtime: '2021/10/22/10:10',
-          size: '1024kb'
-        },
-        {
-          name: 'abc.txt',
-          mtime: '2021/10/22/10:10',
-          size: '1024kb'
-        }
-      ],
+      fileList: [],
       WORK: 'D:\\WASHING_WORK\\',
       WORK_DIR: 'D:\\WASHING_WORK\\input\\',
       OUTPUT_DIR: 'D:\\WASHING_WORK\\output\\'
@@ -118,6 +99,60 @@ export default {
             })
           })
           _this.fileList = temp
+        }
+      })
+    },
+    /* 清空目录 */
+    clearDir () {
+      const dir = this.WORK_DIR
+      readdir(dir, (err, files) => {
+        if (err) {
+          throw err
+        }
+        if (files && files.length > 0) {
+          files.forEach(file => {
+            unlink(`${dir}${file}`, err => {
+              if (err) {
+                throw err
+              }
+            })
+          })
+          alert('清空完成')
+        } else {
+          alert('工作目录已空！')
+        }
+      })
+      this.fileList = []
+    },
+    /* 打开目录 */
+    openDir () {
+      shell.openPath('D:\\WASHING_WORK\\output')
+    },
+    /* AP数据处理 */
+    ApDataHandle () {
+      const _this = this
+      _this.$emit('showLoading', true)
+      readdir(_this.WORK_DIR, (err, files) => {
+        if (err) {
+          console.log(err)
+        }
+        if (files && files.length >= 1) {
+          files.forEach(file => {
+            const path = `${_this.WORK_DIR}${file}`
+            const sheetlist = xlsx.parse(path)
+            const buffer = xlsx.build([{ name: 'ANC曲线', data: handleSheetList(sheetlist) }])
+            const time = timeFormat(new Date()).split('').filter(item => !isNaN(parseInt(item))).join('')
+            writeFile(path.replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlss'), buffer, err => {
+              if (err) {
+                console.log(err)
+              } else {
+                _this.$emit('showLoading', false)
+                alert('处理完毕')
+              }
+            })
+          })
+        } else {
+          alert('目录为空!')
         }
       })
     }
