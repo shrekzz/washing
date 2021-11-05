@@ -3,12 +3,15 @@
     <div v-show="loading"  class="loading" >
        <Spin size="large" tip="处理中..." />
     </div>
-    <a-tabs default-active-key="2" @change="callback">
+    <a-tabs default-active-key="3" @change="callback">
       <a-tab-pane key="1" tab="产线数据处理">
         <line-data @showLoading="showLoading" />
       </a-tab-pane>
       <a-tab-pane key="2" tab="AP数据处理" force-render>
         <ap-data @showLoading="showLoading" />
+      </a-tab-pane>
+      <a-tab-pane key="3" tab="自动输入FAQ" >
+        <auto-faq></auto-faq>
       </a-tab-pane>
     </a-tabs>
   </div>
@@ -17,6 +20,7 @@
 <script>
 import LineData from './components/LineData.vue'
 import ApData from './components/ApData.vue'
+import AutoFaq from './components/AutoFaq.vue'
 
 import { Tabs, Spin } from 'ant-design-vue'
 
@@ -27,7 +31,8 @@ export default {
     ATabs: Tabs,
     ATabPane: Tabs.TabPane,
     Spin,
-    ApData
+    ApData,
+    AutoFaq
   },
   methods: {
     callback (key) {

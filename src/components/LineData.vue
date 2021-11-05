@@ -173,7 +173,7 @@ export default {
     margin: 5px 0;
   }
   .input-group {
-    max-height: 220px;
+    max-height: 130px;
     overflow-y: auto;
   }
 </style>

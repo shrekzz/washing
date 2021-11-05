@@ -17,6 +17,7 @@
     "core-js": "^3.6.5",
     "less-loader": "6.0.0",
     "node-xlsx": "^0.17.2",
+    "robotjs": "^0.6.0",
     "vue": "^2.6.11"
   },
   "devDependencies": {

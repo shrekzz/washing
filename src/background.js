@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -10,11 +10,13 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
+Menu.setApplicationMenu(null)
+
 async function createWindow () {
   // Create the browser window.
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 594,
+    height: 467,
     webPreferences: {
 
       // Use pluginOptions.nodeIntegration, leave this alone
@@ -34,7 +36,9 @@ async function createWindow () {
     win.loadURL('app://./index.html')
   }
 }
+// 解决无法使用 robotjs
 
+app.allowRendererProcessReuse = false
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
