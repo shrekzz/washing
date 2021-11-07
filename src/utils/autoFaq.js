@@ -1,7 +1,9 @@
 const robot = require('robotjs')
+const { clipboard } = require('electron')
 // Speed up the mouse.
 // Get mouse position.
 
+// 一维数组转二维数组
 const setTwoDimensionalArray = list => {
   const listResult = []
   for (let i = 0; i < Math.ceil((list.length / 3)); i++) {
@@ -25,7 +27,7 @@ const setTwoDimensionalArray = list => {
   }
   return freq2Gain(listResult)
 }
-// 数据
+// F和Gain互换
 
 const freq2Gain = arr => {
   for (var i = 0; i < arr.length; i++) {
@@ -39,8 +41,9 @@ const freq2Gain = arr => {
 const autoMove = iirArr => {
   // let mouseX = 220
   // let mouseY = 648
-  const mouseX = 220
-  const mouseY = 648
+  var mouse = robot.getMousePos()
+  const mouseX = mouse.x
+  const mouseY = mouse.y
   const faq = setTwoDimensionalArray(iirArr)
   // for (let x = 0; x < faq.length; x++) {
   //   for (let y = 0; y < faq[0].length; y++) {
@@ -66,16 +69,19 @@ const autoMove = iirArr => {
         robot.moveMouse(mouseX, mouseY)
         robot.mouseClick()
       }
-      const input = String(faq[x][y])
+      if (y === 2 && faq[x][y] <= 0.1) {
+        faq[x][y] = 0.1
+      }
+      const input = String(faq[x][y].toFixed(2))
       robot.keyTap('a', 'control')
-      robot.typeString(input)
+      clipboard.writeText(input)
+      robot.keyTap('v', 'control')
+      // robot.typeString(input)
       if (y === 2) {
         robot.keyTap('tab')
         robot.keyTap('tab')
-        robot.keyTap('tab')
-      } else {
-        robot.keyTap('tab')
       }
+      robot.keyTap('tab')
     }
   }
   // var mouse = robot.getMousePos()

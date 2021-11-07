@@ -1,30 +1,38 @@
 <template>
-  <div class="a-text" >
-    <div class="tips">将ANC调试工具放大，输入faq，点击开始即可</div>
-    <a-textarea style="height: 270px" v-model="text" ></a-textarea>
-    <Button type="primary" class="start-btn" @click="showText">开始</Button>
+  <div class="a-text"  >
+    <div class="tips">1.点击开始即可自动输入；</div>
+    <a-textarea style="height: 270px" v-model="text" placeholder="请输入参数"></a-textarea>
   </div>
 </template>
 
 <script>
-import { Input, Button } from 'ant-design-vue'
+import { Input } from 'ant-design-vue'
 import { autoMove } from '../utils/autoFaq'
 export default {
   name: 'AutoFaq',
   components: {
-    ATextarea: Input.TextArea,
-    Button
+    ATextarea: Input.TextArea
   },
   data () {
     return {
-      text: '请输入'
+      text: ''
     }
   },
   methods: {
-    showText () {
+    autoInput () {
       let iirArr = this.text.replace(/[\n]/g, '').split(' ').filter(item => item !== '').map(item => Number(item))
       iirArr = iirArr.slice(0, iirArr.length - 1)
       autoMove(iirArr)
+    }
+  },
+  created () {
+    // 全局监听ctrl+Q快捷键
+    var _this = this
+    document.onkeydown = function (e) {
+      const key = window.event.keyCode
+      if (key === 81 && e.ctrlKey) {
+        _this.autoInput()
+      }
     }
   }
 }
