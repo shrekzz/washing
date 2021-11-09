@@ -39,30 +39,35 @@ const freq2Gain = arr => {
 }
 
 const autoMove = iirArr => {
-  // let mouseX = 220
-  // let mouseY = 648
   var mouse = robot.getMousePos()
-  const mouseX = mouse.x
-  const mouseY = mouse.y
+  const def = mouse.x
+  let mouseX = mouse.x
+  let mouseY = mouse.y
+  // const mouseX = mouse.x
+  // const mouseY = mouse.y
   const faq = setTwoDimensionalArray(iirArr)
-  // for (let x = 0; x < faq.length; x++) {
-  //   for (let y = 0; y < faq[0].length; y++) {
-  //     if (y === 2) {
-  //       mouseX += 80
-  //     } else if (y === 1) {
-  //       mouseX += 100
-  //     }
-  //     robot.moveMouse(mouseX, mouseY)
-  //     robot.mouseClick()
-  //     const input = String(faq[x][y])
-  //     robot.keyTap('a', 'control')
-  //     robot.typeString(input)
-  //   }
-  //   mouseX = 220
-  //   // 30
-  //   mouseY += 25
-  // }
-
+  for (let x = 0; x < faq.length; x++) {
+    for (let y = 0; y < faq[0].length; y++) {
+      if (y === 2) {
+        mouseX += 80
+      } else if (y === 1) {
+        mouseX += 90
+      }
+      if (y === 2 && faq[x][y] <= 0.1) {
+        faq[x][y] = 0.1
+      }
+      robot.moveMouse(mouseX, mouseY)
+      robot.mouseClick()
+      const input = String(faq[x][y].toFixed(2))
+      robot.keyTap('a', 'control')
+      clipboard.writeText(input)
+      robot.keyTap('v', 'control')
+    }
+    mouseX = def
+    // 30
+    mouseY += 30
+  }
+  /* wuqi
   for (let x = 0; x < faq.length; x++) {
     for (let y = 0; y < faq[0].length; y++) {
       if (x === 0 && y === 0) {
@@ -84,6 +89,7 @@ const autoMove = iirArr => {
       robot.keyTap('tab')
     }
   }
+  */
   // var mouse = robot.getMousePos()
   // console.log('Mouse is at x:' + mouse.x + ' y:' + mouse.y)
 }
