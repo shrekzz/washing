@@ -1,6 +1,6 @@
 <template>
   <div class="a-text"  >
-    <div class="tips">将鼠标悬停在第一个Gain 框，按下CTRL+Q开始自动输入</div>
+    <div class="tips">👩‍🎤将鼠标悬停在第一个Gain 框，按下CTRL+Q开始。</div>
     <a-textarea style="height: 270px" v-model="text" placeholder="请输入参数"></a-textarea>
   </div>
 </template>

@@ -1,3 +1,4 @@
+// 时间格式化
 const timeFormat = (time) => {
   const year = time.getFullYear()
   const month = time.getMonth() + 1
@@ -6,11 +7,11 @@ const timeFormat = (time) => {
   const minutes = time.getMinutes()
   return year + '/' + month + '/' + date + ' ' + hours + ':' + minutes
 }
-
+// 文件大小格式化
 const sizeFormat = (size) => {
   return (Math.floor(size / 1024) || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,') + ' KB'
 }
-
+// AP数据处理
 const handleSheetList = sheetlist => {
   sheetlist.forEach(item => {
     for (let i = 1; i < item.data[3].length; i += 2) {
@@ -39,4 +40,33 @@ const handleSheetList = sheetlist => {
   }
   return start
 }
-export { timeFormat, sizeFormat, handleSheetList }
+// 生成二维数组
+const createArray = (x, y) => {
+  const a = []
+  for (let i = 0; i < x; i++) {
+    a.push([])
+    for (let j = 0; j < y; j++) {
+      a[i].push([])
+    }
+  }
+  return a
+}
+// 数组转置
+const reverseArray = (arr) => {
+  const temp = []
+  let maxLen = 0
+  arr.forEach(item => {
+    maxLen = maxLen <= item.length ? item.length : maxLen
+  })
+  for (let i = 0; i < maxLen; i++) {
+    temp[i] = []
+  }
+  for (let i = 0; i < arr.length; i++) {
+    for (var j = 0; j < arr[i].length; j++) {
+      temp[j][i] = arr[i][j] || ''
+    }
+  }
+  console.log(temp)
+  return temp
+}
+export { timeFormat, sizeFormat, handleSheetList, reverseArray, createArray }

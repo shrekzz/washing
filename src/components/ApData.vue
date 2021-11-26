@@ -1,6 +1,6 @@
 <template>
   <div class="ap-data">
-    <div class="title">拖入文件进行处理 <Icon class="refresh" type="reload" @click="readDir"/></div>
+    <div class="title">🙎‍♂️拖入文件进行处理 <Icon class="refresh" type="reload" @click="readDir"/></div>
     <div class="fileListBox" @drop="dropEvent($event)" @dragover.prevent="" >
       <div class="plus" v-if="fileLen">
         <span class="plus-pos">+</span>
