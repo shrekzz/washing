@@ -1,28 +1,40 @@
 <template>
   <div class="a-text"  >
-    <div class="tips">👩‍🎤将鼠标悬停在第一个Gain 框，按下CTRL+Q开始。</div>
-    <a-textarea style="height: 270px" v-model="text" placeholder="请输入参数"></a-textarea>
+    <div class="tips">👩‍🎤将鼠标悬停在第一个输入框，CTRL+Q开始。</div>
+    ANC工具类型：<a-select :value="toolType" style="width: 120px;marginBottom: 10px" @change="selectType">
+      <a-select-option value="BES">BES</a-select-option>
+      <a-select-option value="wuqi">wuqi</a-select-option>
+      <a-select-option value="Airoha">Airoha</a-select-option>
+    </a-select>
+    <a-textarea @input="showIrr" style="height: 270px" v-model="text" placeholder="请输入参数"></a-textarea>
+    {{showArr}}
   </div>
 </template>
 
 <script>
-import { Input } from 'ant-design-vue'
+import { Input, Select } from 'ant-design-vue'
 import { autoMove } from '../utils/autoFaq'
 export default {
   name: 'AutoFaq',
   components: {
-    ATextarea: Input.TextArea
+    ATextarea: Input.TextArea,
+    ASelect: Select,
+    ASelectOption: Select.Option
   },
   data () {
     return {
-      text: ''
+      text: '',
+      toolType: 'BES'
     }
   },
   methods: {
     autoInput () {
       let iirArr = this.text.replace(/,/g, '').replace(/[\n]/g, '').split(' ').filter(item => item !== '').map(item => Number(item))
       iirArr = iirArr.slice(0, iirArr.length - 1)
-      autoMove(iirArr)
+      autoMove(iirArr, this.toolType)
+    },
+    selectType (value) {
+      this.toolType = value
     }
   },
   created () {
@@ -42,7 +54,7 @@ export default {
 .a-text {
   width: 80%;
   margin: 0 auto;
-  height: 342px;
+  height: 352px;
 }
 .tips{
   font-size: 20px;
