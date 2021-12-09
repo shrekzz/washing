@@ -6,8 +6,7 @@
       <a-select-option value="wuqi">wuqi</a-select-option>
       <a-select-option value="Airoha">Airoha</a-select-option>
     </a-select>
-    <a-textarea @input="showIrr" style="height: 270px" v-model="text" placeholder="请输入参数"></a-textarea>
-    {{showArr}}
+    <a-textarea style="height: 270px" v-model="text" placeholder="请输入参数"></a-textarea>
   </div>
 </template>
 
