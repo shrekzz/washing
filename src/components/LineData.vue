@@ -17,7 +17,7 @@
       <span class="no-names" v-if="filePath === ''">还未选择数据所在目录！</span>
       <CheckboxGroup v-if="filePath !== ''" class="checkboxgroup" :options="sheetListNames" v-model="checkedNames" ></CheckboxGroup>
       <div>
-        <div class="tips">4.选择需要的行(只能输入数字)</div>
+        <div class="tips">4.选择需要的{{ checkedType === 'row' ? '行' : '列' }}(只能输入数字)</div>
         <div class="btn-group">
           <Button type="primary" class="add" @click="handleRow('add')">加一行</Button>
           <Button type="primary" class="sub" @click="handleRow('')">减一行</Button>
@@ -96,6 +96,7 @@ export default {
     checkInsert () {
       const res = [...new Set(this.rows)].filter(item => item !== '').map(item => parseInt(item))
       this.$emit('showLoading', true)
+      console.log(res)
       this.handleData(res)
     },
     /* 打开工作目录 */
@@ -118,12 +119,13 @@ export default {
             const path = `${handlePath}/${file}`
             const sheetlist = xlsx.parse(path)
             if (this.checkedType === 'column') {
-              rowArr.forEach(row => {
-                sheetlist[row - 1].data = reverseArray(sheetlist[row - 1].data)
+              _this.checkedNames.forEach(sheet => {
+                sheetlist[sheet].data = reverseArray(sheetlist[sheet].data)
               })
             }
             _this.checkedNames.forEach((sheet, index) => {
               rowArr.forEach((row, rowIndex) => {
+                console.log(sheet)
                 resSheet[index][rowIndex].push(sheetlist[sheet].data[row - 1])
               })
             })

@@ -3,6 +3,9 @@
     <div v-show="loading"  class="loading" >
        <Spin size="large" tip="处理中..." />
     </div>
+    <div class="loading" v-if="false">
+      <div class="settingDialog"></div>
+    </div>
     <a-tabs default-active-key="1" @change="callback" size="large">
       <a-tab-pane key="1" tab="产线数据处理">
         <line-data @showLoading="showLoading" />
@@ -14,6 +17,16 @@
         <auto-faq></auto-faq>
       </a-tab-pane>
     </a-tabs>
+    <div class="footer">
+      <a-tooltip placement="top">
+        <template slot="title"><span class="tooltips">(施工中)</span></template>
+        <span class="setting">💬</span>
+      </a-tooltip>
+      <a-tooltip placement="top">
+        <template slot="title"><span class="tooltips">(施工中)</span></template>
+          <span class="setting">⚙</span>
+      </a-tooltip>
+    </div>
   </div>
 </template>
 
@@ -21,7 +34,7 @@
 import LineData from './components/LineData.vue'
 import ApData from './components/ApData.vue'
 import AutoFaq from './components/AutoFaq.vue'
-import { Tabs, Spin } from 'ant-design-vue'
+import { Tabs, Spin, Tooltip } from 'ant-design-vue'
 
 export default {
   name: 'App',
@@ -31,7 +44,8 @@ export default {
     ATabPane: Tabs.TabPane,
     Spin,
     ApData,
-    AutoFaq
+    AutoFaq,
+    ATooltip: Tooltip
   },
   methods: {
     callback (key) {
@@ -62,5 +76,30 @@ export default {
   align-items: center;
   background: rgba(0, 0, 0, 0.4);
   z-index: 1000;
+}
+.settingDialog {
+  width: 600px;
+  height: 300px;
+  background: white;
+}
+.footer {
+  width: 100%;
+  position: fixed;
+  height: 20px;
+  background: #87c5ff;
+  bottom: 0;
+  text-align: right;
+  .tooltips {
+    font-size: 8px;
+  }
+  .setting {
+    transition: background .3s;
+    cursor: pointer;
+    padding: 0 2px;
+    margin-right: 5px ;
+    &:hover {
+      background: #6c92b43f;
+    }
+  }
 }
 </style>
