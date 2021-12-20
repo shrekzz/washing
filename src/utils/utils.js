@@ -14,15 +14,17 @@ const sizeFormat = (size) => {
 // AP数据处理
 const handleSheetList = sheetlist => {
   sheetlist.forEach(item => {
-    for (let i = 1; i < item.data[3].length; i += 2) {
-      item.data[3][i] = item.data[1][i - 1]
-    }
-    delete item.data.splice(0, 3)
-    const len = item.data[0].length
-
-    for (let i = 0; i < item.data.length; i++) {
-      for (let j = len; j > 0; j -= 2) {
-        item.data[i].splice(j, 1)
+    // 忽略最后一个表
+    if (item.name !== 'Summary') {
+      for (let i = 1; i < item.data[3].length; i += 2) {
+        item.data[3][i] = item.data[1][i - 1]
+      }
+      delete item.data.splice(0, 3)
+      const len = item.data[0].length
+      for (let i = 0; i < item.data.length; i++) {
+        for (let j = len; j > 0; j -= 2) {
+          item.data[i].splice(j, 1)
+        }
       }
     }
   })

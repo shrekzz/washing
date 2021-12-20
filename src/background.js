@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, Menu } from 'electron'
+import { app, protocol, BrowserWindow, Menu, globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -10,7 +10,7 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
-// Menu.setApplicationMenu(null)
+Menu.setApplicationMenu(null)
 
 async function createWindow () {
   // Create the browser window.
@@ -19,7 +19,6 @@ async function createWindow () {
     height: 527,
     icon: '../logo.ico',
     webPreferences: {
-
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
@@ -36,6 +35,10 @@ async function createWindow () {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
+  // 全局监听快捷键
+  globalShortcut.register('CommandOrControl+Q', () => {
+    win.webContents.send('autoInput', 'you is sb')
+  })
 }
 // 解决无法使用 robotjs
 
@@ -68,6 +71,8 @@ app.on('ready', async () => {
     }
   }
   createWindow()
+ 
+  
 })
 
 // Exit cleanly on request from parent process in development mode.

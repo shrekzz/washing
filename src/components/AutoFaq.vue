@@ -13,6 +13,7 @@
 <script>
 import { Input, Select } from 'ant-design-vue'
 import { autoMove } from '../utils/autoFaq'
+import { ipcRenderer } from 'electron'
 export default {
   name: 'AutoFaq',
   components: {
@@ -28,9 +29,11 @@ export default {
   },
   methods: {
     autoInput () {
-      let iirArr = this.text.replace(/,/g, '').replace(/[\n]/g, '').split(' ').filter(item => item !== '').map(item => Number(item))
-      iirArr = iirArr.slice(0, iirArr.length - 1)
-      autoMove(iirArr, this.toolType)
+      if (this.text !== '') {
+        let iirArr = this.text.replace(/,/g, '').replace(/[\n]/g, '').split(' ').filter(item => item !== '').map(item => Number(item))
+        iirArr = iirArr.slice(0, iirArr.length - 1)
+        autoMove(iirArr, this.toolType)
+      }
     },
     selectType (value) {
       this.toolType = value
@@ -39,12 +42,15 @@ export default {
   created () {
     // 全局监听ctrl+Q快捷键
     var _this = this
-    document.onkeydown = function (e) {
-      const key = window.event.keyCode
-      if (key === 81 && e.ctrlKey) {
-        _this.autoInput()
-      }
-    }
+    // document.onkeydown = function (e) {
+    //   const key = window.event.keyCode
+    //   if (key === 81 && e.ctrlKey) {
+    //     _this.autoInput()
+    //   }
+    // }
+    ipcRenderer.on('autoInput', (e) => {
+      _this.autoInput()
+    })
   }
 }
 </script>
