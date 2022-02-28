@@ -6,13 +6,18 @@ module.exports = {
             builderOptions : {
                 "appId": "com.shrekz",
                 "win": {
-                  "icon": "build/logo2.ico"
+                  "icon": "build/logo2.ico",
+                },
+                "extraResources": {
+                    "from": "./extraResources/",
+                    "to": "../"
                 },
                 "icon": "build/logo2.ico",
                 "nsis": {
                   "oneClick": "false",
                   "allowToChangeInstallationDirectory": "true"
-                }
+                },
+                "asar": false
             }
         },
     },

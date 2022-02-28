@@ -105,4 +105,23 @@ const BESConfig = (arr) => {
   return d
 }
 
-export { timeFormat, sizeFormat, handleSheetList, handleSouncheck, reverseArray, createArray, BESConfig }
+// excle行列格式转换
+const scale = (col, row) => {
+  let res = []
+  while (col / 26 !== 0) {
+    res.unshift(col % 26)
+    col = Math.floor(col / 26)
+  }
+  for (let i = res.length - 1; i >= 0; i--) {
+    if (res[i] === 0) {
+      res[i - 1] = res[i - 1] - 1 === 0 ? '' : res[i - 1] - 1
+      res[i] = 'Z'
+    } else {
+      res[i] = res[i] === '' ? '' : String.fromCharCode(64 + res[i])
+    }
+  }
+  res = res.join('')
+  return 'A1:' + res + row
+}
+
+export { timeFormat, sizeFormat, handleSheetList, handleSouncheck, reverseArray, createArray, BESConfig, scale }

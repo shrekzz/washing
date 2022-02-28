@@ -39,9 +39,11 @@
 import { Button, Icon, Select } from 'ant-design-vue'
 import { basename } from 'path'
 import { copyFile, existsSync, mkdir, readdir, stat, unlink, writeFile } from 'fs'
-import { timeFormat, sizeFormat, handleSheetList, handleSouncheck } from '../utils/utils'
+import { timeFormat, sizeFormat, handleSheetList, handleSouncheck, scale } from '../utils/utils'
 import { shell } from 'electron'
 import xlsx from 'node-xlsx'
+// import { cwd } from 'process'
+import { exec } from 'child_process'
 export default {
   name: 'ApData',
   components: {
@@ -150,23 +152,42 @@ export default {
           files.forEach(file => {
             const path = `${_this.WORK_DIR}${file}`
             const sheetlist = xlsx.parse(path)
-            const buffer = xlsx.build([{ name: 'ANC曲线', data: _this.dataType === 'AP' ? handleSheetList(sheetlist) : handleSouncheck(sheetlist) }])
+            const resArr = _this.dataType === 'AP' ? handleSheetList(sheetlist) : handleSouncheck(sheetlist)
+            const buffer = xlsx.build([{ name: 'ANC曲线', data: resArr }])
             const time = timeFormat(new Date()).split('').filter(item => !isNaN(parseInt(item))).join('')
-            writeFile(path.replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlsx'), buffer, err => {
+            const outputFileName = path.replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlsx')
+            writeFile(outputFileName, buffer, err => {
               if (err) {
                 console.log(err)
               } else {
                 _this.$emit('showLoading', false)
               }
             })
+            /* 画图方法 */
+            _this.draw(outputFileName, resArr[0].length, resArr.length)
           })
         } else {
           alert('目录为空!')
         }
       })
     },
+    /* 更换数据类型 */
     selectType (value) {
       this.dataType = value
+    },
+    selectFile (value) {
+      this.curFile = value
+    },
+    /* 画图 */
+    draw (filename, col, row) {
+      const workerProcess = exec(`xlsx ${filename} ${scale(col, row)}`, { cwd: './' })
+      workerProcess.stdout.on('data', function (data) {
+        console.log('stdout: ' + data)
+      })
+      // 打印错误的后台可执行程序输出
+      workerProcess.stderr.on('data', function (data) {
+        console.log('stderr: ' + data)
+      })
     }
   },
   created () {

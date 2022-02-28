@@ -1,6 +1,6 @@
 {
   "name": "washing",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -17,6 +17,7 @@
     "core-js": "^3.6.5",
     "electron-rebuild": "^3.2.7",
     "less-loader": "6.0.0",
+    "node-cmd": "^5.0.0",
     "node-xlsx": "^0.17.2",
     "robotjs": "^0.6.0",
     "vue": "^2.6.11"

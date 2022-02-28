@@ -7769,6 +7769,11 @@ node-api-version@^0.1.4:
   dependencies:
     semver "^7.3.5"
 
+node-cmd@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.npmmirror.com/node-cmd/-/node-cmd-5.0.0.tgz#a4a850b569e009bec0199a131c9db607144fdbc0"
+  integrity sha512-4sQTJmsS5uZKAPz/Df9fnIbmvOySfGdW+UreH4X5NcAOOpKjaE+K5wf4ehNBbZVPo0vQ36RkRnhhsXXJAT+Syw==
+
 node-emoji@^1.10.0:
   version "1.11.0"
   resolved "https://registry.nlark.com/node-emoji/download/node-emoji-1.11.0.tgz#69a0150e6946e2f115e9d7ea4df7971e2628301c"
