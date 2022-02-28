@@ -1,17 +1,17 @@
 <template>
   <div id="app">
     <div v-show="loading"  class="loading" >
-       <Spin size="large" tip="处理中..." />
+       <img src="./../build/loading.gif" />
     </div>
     <div class="loading" v-if="false">
       <div class="settingDialog"></div>
     </div>
     <a-tabs default-active-key="1" @change="callback" size="large">
-      <a-tab-pane key="1" tab="产线数据处理">
-        <line-data @showLoading="showLoading" />
-      </a-tab-pane>
-      <a-tab-pane key="2" tab="AP数据处理" force-render>
+        <a-tab-pane key="1" tab="AP数据处理" force-render>
         <ap-data @showLoading="showLoading" />
+      </a-tab-pane>
+      <a-tab-pane key="2" tab="产线数据处理">
+        <line-data @showLoading="showLoading" />
       </a-tab-pane>
       <a-tab-pane key="3" tab="自动输入FAQ" >
         <auto-faq></auto-faq>
@@ -31,10 +31,11 @@
 </template>
 
 <script>
-import LineData from './components/LineData.vue'
-import ApData from './components/ApData.vue'
-import AutoFaq from './components/AutoFaq.vue'
-import { Tabs, Spin, Tooltip } from 'ant-design-vue'
+import { Tabs, Tooltip } from 'ant-design-vue'
+// 按需加载
+const LineData = () => import('./components/LineData.vue')
+const ApData = () => import('./components/ApData.vue')
+const AutoFaq = () => import('./components/AutoFaq.vue')
 
 export default {
   name: 'App',
@@ -42,7 +43,6 @@ export default {
     LineData,
     ATabs: Tabs,
     ATabPane: Tabs.TabPane,
-    Spin,
     ApData,
     AutoFaq,
     ATooltip: Tooltip

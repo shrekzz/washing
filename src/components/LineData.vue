@@ -8,7 +8,7 @@
           <input style="display: none" class="getFilePath" type="file" webkitdirectory @change="getFilePath($event)" />
         </label>
       </div>
-      <div class="tips" style="margin-top: 0">2.你需要的数据是行还是列？</div>
+      <div class="tips" style="margin-top: 0">2.数据表类型为行还是列？</div>
       <RadioGroup v-model="checkedType" buttonStyle="solid">
         <RadioButton value="row">行</RadioButton>
         <RadioButton value="column">列</RadioButton>
@@ -19,8 +19,8 @@
       <div>
         <div class="tips">4.选择需要的{{ checkedType === 'row' ? '行' : '列' }}(只能输入数字)</div>
         <div class="btn-group">
-          <Button type="primary" class="add" @click="handleRow('add')">加一行</Button>
-          <Button type="primary" class="sub" @click="handleRow('')">减一行</Button>
+          <Button type="primary" class="add" @click="handleRow('add')">加一{{ checkedType === 'row' ? '行' : '列' }}</Button>
+          <Button type="primary" class="sub" @click="handleRow('')">减一{{ checkedType === 'row' ? '行' : '列' }}</Button>
         </div>
         <div class="input-group">
           <Input class="input-row" v-for="(item, index) in rows" :key="index" type="number" v-model="rows[index]" />
@@ -96,7 +96,6 @@ export default {
     checkInsert () {
       const res = [...new Set(this.rows)].filter(item => item !== '').map(item => parseInt(item))
       this.$emit('showLoading', true)
-      console.log(res)
       this.handleData(res)
     },
     /* 打开工作目录 */
@@ -118,6 +117,7 @@ export default {
           files.forEach(file => {
             const path = `${handlePath}/${file}`
             const sheetlist = xlsx.parse(path)
+            console.log(file)
             if (this.checkedType === 'column') {
               _this.checkedNames.forEach(sheet => {
                 sheetlist[sheet].data = reverseArray(sheetlist[sheet].data)
@@ -125,7 +125,6 @@ export default {
             }
             _this.checkedNames.forEach((sheet, index) => {
               rowArr.forEach((row, rowIndex) => {
-                console.log(sheet)
                 resSheet[index][rowIndex].push(sheetlist[sheet].data[row - 1])
               })
             })
@@ -210,6 +209,8 @@ export default {
       .checkboxgroup-item {
         display: none;
       }
+      height: 100px;
+      overflow-y: auto;
     }
     .no-names {
       display: block;

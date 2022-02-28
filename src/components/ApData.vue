@@ -1,6 +1,13 @@
 <template>
   <div class="ap-data">
     <div class="title">🙎‍♂️拖入文件进行处理 <Icon class="refresh" type="reload" @click="readDir"/></div>
+    <div class="selector">
+      数据类型：
+      <a-select :value="dataType" style="width: 120px;marginBottom: 10px;marginTop: 10px" @change="selectType">
+        <a-select-option value="AP">Ap</a-select-option>
+        <a-select-option value="Soundcheck">Soundcheck</a-select-option>
+      </a-select>
+    </div>
     <div class="fileListBox" @drop="dropEvent($event)" @dragover.prevent="" >
       <div class="plus" v-if="fileLen">
         <span class="plus-pos">+</span>
@@ -29,24 +36,27 @@
 </template>
 
 <script>
-import { Button, Icon } from 'ant-design-vue'
+import { Button, Icon, Select } from 'ant-design-vue'
 import { basename } from 'path'
 import { copyFile, existsSync, mkdir, readdir, stat, unlink, writeFile } from 'fs'
-import { timeFormat, sizeFormat, handleSheetList } from '../utils/utils'
+import { timeFormat, sizeFormat, handleSheetList, handleSouncheck } from '../utils/utils'
 import { shell } from 'electron'
 import xlsx from 'node-xlsx'
 export default {
   name: 'ApData',
   components: {
     Button,
-    Icon
+    Icon,
+    ASelect: Select,
+    ASelectOption: Select.Option
   },
   data () {
     return {
       fileList: [],
       WORK: 'D:\\WASHING_WORK\\',
       WORK_DIR: 'D:\\WASHING_WORK\\input\\',
-      OUTPUT_DIR: 'D:\\WASHING_WORK\\output\\'
+      OUTPUT_DIR: 'D:\\WASHING_WORK\\output\\',
+      dataType: 'AP'
     }
   },
   computed: {
@@ -140,14 +150,13 @@ export default {
           files.forEach(file => {
             const path = `${_this.WORK_DIR}${file}`
             const sheetlist = xlsx.parse(path)
-            const buffer = xlsx.build([{ name: 'ANC曲线', data: handleSheetList(sheetlist) }])
+            const buffer = xlsx.build([{ name: 'ANC曲线', data: _this.dataType === 'AP' ? handleSheetList(sheetlist) : handleSouncheck(sheetlist) }])
             const time = timeFormat(new Date()).split('').filter(item => !isNaN(parseInt(item))).join('')
-            writeFile(path.replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlss'), buffer, err => {
+            writeFile(path.replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlsx'), buffer, err => {
               if (err) {
                 console.log(err)
               } else {
                 _this.$emit('showLoading', false)
-                alert('处理完毕')
               }
             })
           })
@@ -155,6 +164,9 @@ export default {
           alert('目录为空!')
         }
       })
+    },
+    selectType (value) {
+      this.dataType = value
     }
   },
   created () {
@@ -186,6 +198,10 @@ export default {
 .ap-data {
   margin: 0 auto;
 }
+.selector {
+  width: 80%;
+  margin: 0 auto;
+}
 .title {
   width: 80%;
   margin: 0 auto;
@@ -193,12 +209,12 @@ export default {
   font-weight: 500;
   .refresh {
     cursor: pointer;
+    :hover {
+      color: #1890ff;
+    }
   }
 }
 .fileListBox {
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
   width: 80%;
   height: 260px;
   border: 10px rgba(199, 199, 199) dashed;

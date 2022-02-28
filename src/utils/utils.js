@@ -4,7 +4,7 @@ const timeFormat = (time) => {
   const month = time.getMonth() + 1
   const date = time.getDate()
   const hours = time.getHours()
-  const minutes = time.getMinutes()
+  const minutes = time.getMinutes() >= 10 ? time.getMinutes() : '0' + time.getMinutes()
   return year + '/' + month + '/' + date + ' ' + hours + ':' + minutes
 }
 // 文件大小格式化
@@ -42,6 +42,26 @@ const handleSheetList = sheetlist => {
   }
   return start
 }
+
+// soundcheck
+const handleSouncheck = sheetlist => {
+  const start = []
+  sheetlist.forEach((item, index) => {
+    if (index === 1) {
+      item.data[0][2] = item.data[1][0]
+      for (let j = 0; j < item.data.length; j++) {
+        start.push(item.data[j].slice(1, 3))
+      }
+    }
+    if (index > 1) {
+      item.data[0][2] = item.data[1][0]
+      for (let i = 0; i < item.data.length; i++) {
+        start[i].push(item.data[i][2])
+      }
+    }
+  })
+  return start
+}
 // 生成二维数组
 const createArray = (x, y) => {
   const a = []
@@ -68,7 +88,21 @@ const reverseArray = (arr) => {
       temp[j][i] = arr[i][j] || ''
     }
   }
-  console.log(temp)
   return temp
 }
-export { timeFormat, sizeFormat, handleSheetList, reverseArray, createArray }
+
+// BES 数据处理
+const BESConfig = (arr) => {
+  const d = []
+  // console.log(v.slice(v.indexOf(':') + 2 , v.length))
+  const b = arr.slice(arr.indexOf('[') + 2, arr.length).split(', ')
+  for (let i = 0; i < b.length; i++) {
+    b[i] = b[i].replace(']', '')
+    if (i % 5 !== 0 && i % 5 !== 1) {
+      d.push(Number(b[i].replace(']', '')))
+    }
+  }
+  return d
+}
+
+export { timeFormat, sizeFormat, handleSheetList, handleSouncheck, reverseArray, createArray, BESConfig }

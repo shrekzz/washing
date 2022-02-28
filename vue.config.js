@@ -6,9 +6,9 @@ module.exports = {
             builderOptions : {
                 "appId": "com.shrekz",
                 "win": {
-                  "icon": "build/logo.ico"
+                  "icon": "build/logo2.ico"
                 },
-                "icon": "build/logo.ico",
+                "icon": "build/logo2.ico",
                 "nsis": {
                   "oneClick": "false",
                   "allowToChangeInstallationDirectory": "true"
@@ -24,5 +24,5 @@ module.exports = {
                 }
             }
         }
-    }, 
+    }
 }

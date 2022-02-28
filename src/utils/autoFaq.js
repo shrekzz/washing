@@ -65,7 +65,7 @@ const autoMove = (iirArr, type) => {
           }
           robot.moveMouse(mouseX, mouseY)
           robot.mouseClick()
-          const input = y === 0 ? String(Math.floor(faq[x][y])) : String(faq[x][y].toFixed(2))
+          const input = String(Math.round(faq[x][y] * 100) / 100)
           robot.keyTap('a', 'control')
           clipboard.writeText(input)
           robot.keyTap('v', 'control')
@@ -81,8 +81,32 @@ const autoMove = (iirArr, type) => {
     case 'Airoha':
       faq = freq2Gain(setTwoDimensionalArray(iirArr), 1, 2)
       break
+    case 'BES Config':
+      faq = setTwoDimensionalArray(iirArr)
+      for (let x = 0; x < faq.length; x++) {
+        for (let y = 0; y < faq[0].length; y++) {
+          if (y === 2) {
+            mouseX += 80
+          } else if (y === 1) {
+            mouseX += 90
+          }
+          if (y === 2 && faq[x][y] <= 0.1) {
+            faq[x][y] = 0.1
+          }
+          robot.moveMouse(mouseX, mouseY)
+          robot.mouseClick()
+          const input = String(Math.round(faq[x][y] * 100) / 100)
+          robot.keyTap('a', 'control')
+          clipboard.writeText(input)
+          robot.keyTap('v', 'control')
+        }
+        mouseX = def
+        // 30
+        mouseY += 30
+      }
+      break
   }
-  if (type !== 'BES') {
+  if (!type.includes('BES')) {
     for (let x = 0; x < faq.length; x++) {
       for (let y = 0; y < faq[0].length; y++) {
         if (x === 0 && y === 0) {
@@ -92,7 +116,7 @@ const autoMove = (iirArr, type) => {
         if (y === 1 && faq[x][y] <= 0.1) {
           faq[x][y] = 0.1
         }
-        const input = y === 0 ? String(Math.floor(faq[x][y])) : String(faq[x][y].toFixed(2))
+        const input = String(Math.round(faq[x][y] * 100) / 100)
         robot.keyTap('a', 'control')
         clipboard.writeText(input)
         robot.keyTap('v', 'control')

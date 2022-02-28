@@ -16,8 +16,9 @@ async function createWindow () {
   // Create the browser window.
   const win = new BrowserWindow({
     width: 594,
-    height: 527,
+    height: 677,
     icon: '../logo.ico',
+    resizable: false,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
@@ -39,6 +40,9 @@ async function createWindow () {
   globalShortcut.register('CommandOrControl+Q', () => {
     win.webContents.send('autoInput', 'you is sb')
   })
+  globalShortcut.register('ESC', () => {
+    win.webContents.send('stopInput')
+  })
 }
 // 解决无法使用 robotjs
 
@@ -50,6 +54,13 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+  //  // Unregister a shortcut.
+  //  globalShortcut.unregister('CommandOrControl+Q')
+  
+  //  // Unregister all shortcuts.
+  //  globalShortcut.unregisterAll()
+  //    // On macOS it is common for applications and their menu bar
+  //    // to stay active until the user quits explicitly with Cmd + Q
 })
 
 app.on('activate', () => {
