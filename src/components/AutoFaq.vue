@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="autofaq">
     <div class="a-text"  >
       <div class="tips">👩‍🎤将鼠标悬停在第一个输入框，CTRL+Q开始。</div>
       ANC工具类型：<a-select :value="toolType" style="width: 120px;marginBottom: 10px" @change="selectType">
@@ -78,6 +78,11 @@ export default {
 </script>
 
 <style scopd lang='less'>
+.autofaq {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
+}
 .a-text {
   width: 80%;
   margin: 0 auto;

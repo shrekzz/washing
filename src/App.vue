@@ -83,6 +83,9 @@ export default {
   background: white;
 }
 .footer {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
   width: 100%;
   position: fixed;
   height: 20px;

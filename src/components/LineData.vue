@@ -178,7 +178,11 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
-
+  .handle{
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+  }
   .tips {
     margin: 10px 0;
     font-size: 20px;

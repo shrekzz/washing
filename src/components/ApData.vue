@@ -22,7 +22,7 @@
           <li>大小</li>
         </ul>
         <div class="file-scroller">
-          <ul class="fileList" v-for="(file, index) in fileList" :key="index">
+          <ul class="fileList" v-for="(file, index) in fileList" :key="index" @dblclick="openFile(file.name)">
             <li class="file-detail">{{ file.name }}</li>
             <li class="file-detail">{{ file.mtime }}</li>
             <li class="file-detail">{{ file.size }}</li>
@@ -146,6 +146,11 @@ export default {
     openDir () {
       shell.openPath('D:\\WASHING_WORK\\output')
     },
+    /* 打开文件 */
+    openFile (filename) {
+      logger.info(this.WORK_DIR + filename)
+      exec(`"${filename}"`, { cwd: this.WORK_DIR })
+    },
     /* AP数据处理 */
     ApDataHandle () {
       const _this = this
@@ -225,6 +230,9 @@ export default {
 <style lang='less' scoped>
 .ap-data {
   margin: 0 auto;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
 }
 .selector {
   width: 80%;
