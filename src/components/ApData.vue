@@ -2,11 +2,14 @@
   <div class="ap-data">
     <div class="title">🙎‍♂️拖入文件进行处理 <Icon class="refresh" type="reload" @click="readDir"/></div>
     <div class="selector">
-      数据类型：
-      <a-select :value="dataType" style="width: 120px;marginBottom: 10px;marginTop: 10px" @change="selectType">
-        <a-select-option value="AP">Ap</a-select-option>
-        <a-select-option value="Soundcheck">Soundcheck</a-select-option>
-      </a-select>
+      <div>
+        数据类型：
+        <a-select :value="dataType" style="width: 120px;marginBottom: 10px;marginTop: 10px" @change="selectType">
+          <a-select-option value="AP">Ap</a-select-option>
+          <a-select-option value="Soundcheck">Soundcheck</a-select-option>
+        </a-select>
+      </div>
+      <Checkbox :checked="isDraw" @change="isDraw = !isDraw">生成图表</Checkbox>
     </div>
     <div class="fileListBox" @drop="dropEvent($event)" @dragover.prevent="" >
       <div class="plus" v-if="fileLen">
@@ -36,21 +39,22 @@
 </template>
 
 <script>
-import { Button, Icon, Select } from 'ant-design-vue'
+import { Button, Icon, Select, Checkbox } from 'ant-design-vue'
 import { basename } from 'path'
 import { copyFile, existsSync, mkdir, readdir, stat, unlink, writeFile } from 'fs'
 import { timeFormat, sizeFormat, handleSheetList, handleSouncheck, scale } from '../utils/utils'
 import { shell } from 'electron'
 import xlsx from 'node-xlsx'
-// import { cwd } from 'process'
 import { exec } from 'child_process'
+import { logger } from '../utils/log.js'
 export default {
   name: 'ApData',
   components: {
     Button,
     Icon,
     ASelect: Select,
-    ASelectOption: Select.Option
+    ASelectOption: Select.Option,
+    Checkbox
   },
   data () {
     return {
@@ -58,7 +62,8 @@ export default {
       WORK: 'D:\\WASHING_WORK\\',
       WORK_DIR: 'D:\\WASHING_WORK\\input\\',
       OUTPUT_DIR: 'D:\\WASHING_WORK\\output\\',
-      dataType: 'AP'
+      dataType: 'AP',
+      isDraw: false
     }
   },
   computed: {
@@ -84,9 +89,8 @@ export default {
       const _this = this
       copyFile(fromFileName, toFileName, 0, (err) => {
         if (err) {
-          console.log(err)
+          logger.error(err)
         } else {
-          console.log('复制完成')
           // 复制完重新获取一遍文件列表
           _this.readDir()
         }
@@ -101,7 +105,7 @@ export default {
           files.forEach(file => {
             stat(`${_this.WORK_DIR}${file}`, (err, stats) => {
               if (err) {
-                console.log(err)
+                logger.error(err)
               }
               temp.push({
                 name: file,
@@ -111,6 +115,8 @@ export default {
             })
           })
           _this.fileList = temp
+        } else {
+          logger.error(err)
         }
       })
     },
@@ -119,13 +125,13 @@ export default {
       const dir = this.WORK_DIR
       readdir(dir, (err, files) => {
         if (err) {
-          throw err
+          logger.error(err)
         }
         if (files && files.length > 0) {
           files.forEach(file => {
             unlink(`${dir}${file}`, err => {
               if (err) {
-                throw err
+                logger.error(err)
               }
             })
           })
@@ -146,7 +152,7 @@ export default {
       _this.$emit('showLoading', true)
       readdir(_this.WORK_DIR, (err, files) => {
         if (err) {
-          console.log(err)
+          logger.error(err)
         }
         if (files && files.length >= 1) {
           files.forEach(file => {
@@ -158,13 +164,16 @@ export default {
             const outputFileName = path.replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlsx')
             writeFile(outputFileName, buffer, err => {
               if (err) {
-                console.log(err)
+                logger.error(err)
               } else {
                 _this.$emit('showLoading', false)
               }
             })
             /* 画图方法 */
-            _this.draw(outputFileName, resArr[0].length, resArr.length)
+            if (_this.isDraw) {
+              _this.draw(outputFileName, resArr[0].length, resArr.length)
+            }
+            logger.info('处理 ' + outputFileName + ' 完成')
           })
         } else {
           alert('目录为空!')
@@ -175,18 +184,16 @@ export default {
     selectType (value) {
       this.dataType = value
     },
-    selectFile (value) {
-      this.curFile = value
-    },
     /* 画图 */
     draw (filename, col, row) {
-      const workerProcess = exec(`xlsx ${filename} ${scale(col, row)}`, { cwd: './' })
+      // 通过CMD打开python画图, 路径加引号。避免某些文件名带空格
+      const workerProcess = exec(`xlsx "${filename}" ${scale(col, row)}`, { cwd: './' })
       workerProcess.stdout.on('data', function (data) {
-        console.log('stdout: ' + data)
+        logger.info('stdout: ' + data)
       })
       // 打印错误的后台可执行程序输出
       workerProcess.stderr.on('data', function (data) {
-        console.log('stderr: ' + data)
+        logger.error('stderr: ' + data)
       })
     }
   },
@@ -194,16 +201,16 @@ export default {
     if (!existsSync(this.WORK)) {
       mkdir(this.WORK, err => {
         if (err) {
-          console.log(err)
+          logger.error(err)
         }
         mkdir(this.WORK_DIR, err => {
           if (err) {
-            console.log(err)
+            logger.error(err)
           }
         })
         mkdir(this.OUTPUT_DIR, err => {
           if (err) {
-            console.log(err)
+            logger.error(err)
           }
         })
       })
@@ -222,6 +229,9 @@ export default {
 .selector {
   width: 80%;
   margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .title {
   width: 80%;

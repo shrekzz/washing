@@ -94,7 +94,6 @@ const reverseArray = (arr) => {
 // BES 数据处理
 const BESConfig = (arr) => {
   const d = []
-  // console.log(v.slice(v.indexOf(':') + 2 , v.length))
   const b = arr.slice(arr.indexOf('[') + 2, arr.length).split(', ')
   for (let i = 0; i < b.length; i++) {
     b[i] = b[i].replace(']', '')

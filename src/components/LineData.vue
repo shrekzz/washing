@@ -41,6 +41,7 @@ import { Button, Input, Checkbox, Radio } from 'ant-design-vue'
 import { shell } from 'electron'
 import xlsx from 'node-xlsx'
 import { reverseArray, createArray } from '../utils/utils'
+import { logger } from '../utils/log'
 
 export default {
   name: 'LineData',
@@ -73,7 +74,7 @@ export default {
       const _this = this
       readdir(_this.filePath, (err, files) => {
         if (err) {
-          console.log(err)
+          logger.error(err)
         } else {
           const path = `${_this.filePath}/${files[0]}`
           xlsx.parse(path).forEach((item, index) => {
@@ -140,7 +141,7 @@ export default {
           const buffer = xlsx.build(sheets)
           writeFile('d:/Washing_Output/sheet.xlsx', buffer, function (err) {
             if (err) {
-              console.log('写入失败: ', err)
+              logger.error('写入失败: ', err)
             } else {
               _this.$emit('showLoading', false)
             }
@@ -154,7 +155,7 @@ export default {
     if (!existsSync(WORK_DIR)) {
       mkdir(WORK_DIR, err => {
         if (err) {
-          console.log(err)
+          logger.error(err)
         }
       })
     }

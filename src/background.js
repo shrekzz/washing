@@ -18,7 +18,7 @@ async function createWindow () {
     width: 594,
     height: 677,
     icon: '../logo.ico',
-    resizable: false,
+    resizable: isDevelopment,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info

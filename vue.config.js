@@ -17,9 +17,9 @@ module.exports = {
                   "oneClick": "false",
                   "allowToChangeInstallationDirectory": "true"
                 },
-                "asar": false
+                "asar": true
             }
-        },
+        }
     },
     css: {
         loaderOptions: {

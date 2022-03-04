@@ -19,11 +19,11 @@
     </a-tabs>
     <div class="footer">
       <a-tooltip placement="top">
-        <template slot="title"><span class="tooltips">(施工中)</span></template>
+        <template slot="title"><span class="tooltips">关于</span></template>
         <span class="setting">💬</span>
       </a-tooltip>
-      <a-tooltip placement="top">
-        <template slot="title"><span class="tooltips">(施工中)</span></template>
+      <a-tooltip placement="topRight" :arrowPointAtCenter="true">
+        <template slot="title"><span class="tooltips">设置</span></template>
           <span class="setting">⚙</span>
       </a-tooltip>
     </div>

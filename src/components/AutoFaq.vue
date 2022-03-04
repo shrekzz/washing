@@ -26,6 +26,7 @@ import { readFile } from 'fs'
 import { Input, Select } from 'ant-design-vue'
 import { autoMove } from '../utils/autoFaq'
 import { ipcRenderer } from 'electron'
+import { logger } from '../utils/log'
 export default {
   name: 'AutoFaq',
   components: {
@@ -47,7 +48,6 @@ export default {
       if (this.text !== '') {
         let iirArr = this.text.replace(/,/g, '').replace(/[\n]/g, '').replace(/[\t]/g, ' ').split(' ').filter(item => item !== '').map(item => Number(item))
         iirArr = iirArr.slice(0, iirArr.length - 1)
-        console.log(iirArr)
         autoMove(iirArr, this.toolType)
       }
     },
@@ -58,9 +58,8 @@ export default {
       const _this = this
       readFile(e.target.files[0].path, { encoding: 'utf-8' }, (err, data) => {
         if (err) {
-          console.log(err)
+          logger.error(err)
         }
-        // console.log(data.split(/\r\n/))
         const FF = data.split(/\r\n/)[177]
         const FB = data.split(/\r\n/)[514]
         _this.FFIIR = BESConfig(FF)
