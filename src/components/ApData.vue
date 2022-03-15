@@ -192,7 +192,8 @@ export default {
     /* 画图 */
     draw (filename, col, row) {
       // 通过CMD打开python画图, 路径加引号。避免某些文件名带空格
-      const workerProcess = exec(`xlsx "${filename}" ${scale(col, row)}`, { cwd: './' })
+      const workerProcess = exec(`xlsx "${filename}" "${scale(col, row)}"`, { cwd: './' })
+      logger.info(`xlsx "${filename}" ${scale(col, row)}`)
       workerProcess.stdout.on('data', function (data) {
         logger.info('stdout: ' + data)
       })

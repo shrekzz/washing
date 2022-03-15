@@ -115,10 +115,10 @@ export default {
       const resSheet = createArray(this.checkedNames.length, rowArr.length)
       readdir(handlePath, (err, files) => {
         if (!err) {
-          files.forEach(file => {
+          files.forEach((file, i) => {
             const path = `${handlePath}/${file}`
             const sheetlist = xlsx.parse(path)
-            console.log(file)
+            const mac = file.split('_')[2]
             if (this.checkedType === 'column') {
               _this.checkedNames.forEach(sheet => {
                 sheetlist[sheet].data = reverseArray(sheetlist[sheet].data)
@@ -126,9 +126,11 @@ export default {
             }
             _this.checkedNames.forEach((sheet, index) => {
               rowArr.forEach((row, rowIndex) => {
+                sheetlist[sheet].data[row - 1][0] = mac
                 resSheet[index][rowIndex].push(sheetlist[sheet].data[row - 1])
               })
             })
+            console.log(Math.floor(i / files.length * 100) + '%')
           })
           resSheet.forEach((sheet, sheetIndex) => {
             sheet.forEach((item, itemIndex) => {

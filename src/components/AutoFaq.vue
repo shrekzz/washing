@@ -82,6 +82,7 @@ export default {
   -moz-user-select: none;
   -khtml-user-select: none;
   user-select: none;
+  height: 500px;
 }
 .a-text {
   width: 80%;
