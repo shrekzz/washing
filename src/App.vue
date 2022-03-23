@@ -11,7 +11,7 @@
     </a-menu>
     <a-tabs v-if="activePanes.length !== 0" class="tabs" type="editable-card" v-model="tabs[0]" hide-add  size="large" @edit="onEdit">
       <a-tab-pane v-for="item in activePanes" :key="item.key" :tab="item.tab" @click="changeActived(item.key)">
-        <component :is="item.tabContent"  @showLoading="showLoading" />
+        <component :is="item.tabContent"  @showLoading="showLoading" @setConfig="setConfig" :ref="item.key" />
       </a-tab-pane>
     </a-tabs>
     <div class="home" v-else>
@@ -83,6 +83,9 @@ export default {
     /* 标签删除方法 */
     onEdit (targetKey, action) {
       if (action === 'remove') {
+        if (targetKey === 'setting') {
+          console.log(this.$refs.setting.$data)
+        }
         let activeKey = this.tabs[0]
         let lastIndex
         this.activePanes.forEach((item, i) => {
