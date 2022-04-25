@@ -13,6 +13,9 @@
         <Input v-model="configuration.workDir" class="filePath"/>
       </div>
     </div>
+    <div >
+      <span class="title">版本更新</span>
+    </div>
     <Button>保存</Button>
   </div>
 </template>

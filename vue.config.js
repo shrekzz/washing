@@ -3,9 +3,9 @@ const LodashModuleReplacementPlugin = require("lodash-webpack-plugin")
 module.exports = {
     chainWebpack: config => {
         // 打包分析
-        config
-        .plugin('webpack-bundle-analyzer')
-        .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
+        // config
+        // .plugin('webpack-bundle-analyzer')
+        // .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
         // 优化 lodash 80k -> 35k
         config
         .plugin('loadshReplace')
