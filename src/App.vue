@@ -11,7 +11,7 @@
     </a-menu>
     <a-tabs v-if="activePanes.length !== 0" class="tabs" type="editable-card" v-model="tabs[0]" hide-add  size="large" @edit="onEdit">
       <a-tab-pane v-for="item in activePanes" :key="item.key" :tab="item.tab" @click="changeActived(item.key)">
-        <component :is="item.tabContent"  @showLoading="showLoading" @setConfig="setConfig" :ref="item.key" />
+        <component :is="item.tabContent"  @showLoading="showLoading" @setConfig="setConfig" :ref="item.key" :config="configuration" />
       </a-tab-pane>
     </a-tabs>
     <div class="home" v-else>
@@ -39,6 +39,8 @@
 <script>
 import { Tabs, Tooltip, Menu } from 'ant-design-vue'
 import { writeFile, existsSync, readFile } from 'fs'
+import { logger } from './utils/log.js'
+
 // 按需加载
 const LineData = () => import('./components/LineData.vue')
 const ApData = () => import('./components/ApData.vue')
@@ -106,10 +108,11 @@ export default {
       }
     },
     setConfig (cfg = { workDir: 'D:/WASHING_WORK/', defaultTabs: [] }) {
+      this.configuration = cfg
       const config = JSON.stringify(cfg)
       writeFile('./config.json', config, err => {
         if (err) {
-          console.log(err)
+          logger.error(err)
         }
       })
     }
@@ -148,10 +151,18 @@ export default {
     } else {
       readFile('./config.json', (err, data) => {
         if (err) {
-          console.log(err)
+          logger.error(err)
         } else {
           this.configuration = JSON.parse(data)
-          console.log(this.configuration)
+          const defaultTabs = this.configuration.defaultTabs
+          for (let i = 0; i < defaultTabs.length; i++) {
+            for (let j = 0; j < this.panes.length; j++) {
+              if (this.panes[j].tab === defaultTabs[i]) {
+                this.activePanes.push(this.panes[j])
+                continue
+              }
+            }
+          }
         }
       })
     }
@@ -207,9 +218,6 @@ body{
   float: left;
   width: 70px;
   height: 100vh;
-}
-.tabs {
-  // font-size: 10px;
 }
 .settingDialog {
   width: 600px;

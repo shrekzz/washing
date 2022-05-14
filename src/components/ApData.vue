@@ -56,12 +56,13 @@ export default {
     ASelectOption: Select.Option,
     Checkbox
   },
+  props: ['config'],
   data () {
     return {
       fileList: [],
-      WORK: 'D:\\WASHING_WORK\\',
-      WORK_DIR: 'D:\\WASHING_WORK\\input\\',
-      OUTPUT_DIR: 'D:\\WASHING_WORK\\output\\',
+      WORK: this.config.workDir,
+      WORK_DIR: this.config.workDir + 'input\\',
+      OUTPUT_DIR: this.config.workDir + 'output\\',
       dataType: 'AP',
       isDraw: false
     }
