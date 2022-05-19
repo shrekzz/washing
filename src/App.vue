@@ -46,6 +46,7 @@ const LineData = () => import('./components/LineData.vue')
 const ApData = () => import('./components/ApData.vue')
 const AutoFaq = () => import('./components/AutoFaq.vue')
 const Setting = () => import('./components/Setting.vue')
+const LimitLine = () => import('./components/LimitLine.vue')
 
 export default {
   name: 'App',
@@ -58,7 +59,8 @@ export default {
     Setting,
     ATooltip: Tooltip,
     AMenu: Menu,
-    AMenuItem: Menu.Item
+    AMenuItem: Menu.Item,
+    LimitLine
   },
   methods: {
     callback (key) {
@@ -139,6 +141,12 @@ export default {
           tab: '自动输入FAQ',
           menuContent: 'Auto',
           tabContent: 'auto-faq'
+        },
+        {
+          key: 'limit',
+          tab: '自动生成框线',
+          menuContent: '框线',
+          tabContent: 'limit-line'
         }
       ],
       activePanes: [],
@@ -163,6 +171,7 @@ export default {
               }
             }
           }
+          this.tabs = [this.activePanes[0].key]
         }
       })
     }
