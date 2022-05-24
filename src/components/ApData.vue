@@ -155,7 +155,7 @@ export default {
     /* AP数据处理 */
     ApDataHandle () {
       const _this = this
-      _this.$emit('showLoading', true)
+      _this.$emit('show-loading', true)
       readdir(_this.WORK_DIR, (err, files) => {
         if (err) {
           logger.error(err)
@@ -172,7 +172,7 @@ export default {
               if (err) {
                 logger.error(err)
               } else {
-                _this.$emit('showLoading', false)
+                _this.$emit('show-loading', false)
               }
             })
             /* 画图方法 */

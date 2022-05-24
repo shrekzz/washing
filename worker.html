@@ -1,0 +1,15 @@
+<html>
+  <body>
+    <button onclick="send()">123</button>
+  </body>
+  <script type="module">
+    const { ipcRenderer } = require('electron')
+    const result = []
+    import LimitFactory from './src/utils/LimitFactory.js'
+    ipcRenderer.on('message-from-main', (event, arg) => {
+      const LF = new LimitFactory(...arg.data)
+      console.log(LF.getResult())
+    })
+    ipcRenderer.send('message-from-worker', { type: 'feedback', data:result })
+  </script>
+</html>

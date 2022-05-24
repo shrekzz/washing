@@ -22,7 +22,7 @@
       下限：<div class="low"><Input type="number" addon-before="-" v-model="low" @change="checkInsert('low')" /></div>
     </div>
     <div class="btn-group">
-      <Button class="start" type="" @change="checkInsert" :disabled="startFlag">开始</Button>
+      <Button class="start" type="" @click="test" :disabled="startFlag">开始</Button>
       <Button class="open" type="primary" @click="openWork" >打开工作目录</Button>
     </div>
   </div>
@@ -31,6 +31,9 @@
 <script>
 import { Input, Button } from 'ant-design-vue'
 import { shell } from 'electron'
+import LimitFactory from './../utils/LimitFactory'
+import xlsx from 'node-xlsx'
+import { writeFile } from 'fs'
 
 export default {
   name: 'LimitLine',
@@ -41,10 +44,10 @@ export default {
   data () {
     return {
       filePath: '',
-      lowFreq: 0,
-      upFreq: 20000,
-      low: 0,
-      up: 0
+      lowFreq: 50,
+      upFreq: 1000,
+      low: 3,
+      up: 3
     }
   },
   props: ['config'],
@@ -67,16 +70,45 @@ export default {
         case 'upFreq':
           this.upFreq = Number(this.upFreq) > Number(this.lowFreq) && Number(this.upFreq) <= 20000 ? Number(this.upFreq) : 20000
       }
-      this.$emit('showLoading', true)
     },
     openWork () {
       shell.openPath(this.config.workDir + 'output')
+    },
+    startWork () {
+      this.$emit('show-loading', true)
+      const _this = this
+      const sheet = xlsx.parse(this.filePath)[2].data
+      const LF = new LimitFactory(sheet, [this.low, this.up], [this.lowFreq, this.upFreq])
+      const res = LF.getResult()
+      const buffer = xlsx.build([{
+        name: 'ANC',
+        data: res
+      }])
+      writeFile(`${this.config.workDir}/output/shrekz.xlsx`, buffer, err => {
+        if (err) {
+          console.log(err)
+        } else {
+          _this.$emit('show-loading', false)
+        }
+      })
+    },
+    test () {
+      this.$emit('show-loading', true)
+      const sheet = xlsx.parse(this.filePath)[2].data
+      this.$ipcRenderer.send('message-from-main', [sheet, [this.low, this.up], [this.lowFreq, this.upFreq]])
+      this.$emit('show-loading', false)
     }
   },
   computed: {
     startFlag () {
       return this.filePath === ''
     }
+  },
+  mounted () {
+    console.log(this.$ipcRenderer)
+    this.$ipcRenderer.on('message-from-worker', (event, arg) => {
+      console.log(arg)
+    })
   }
 }
 </script>
@@ -86,7 +118,7 @@ export default {
     width: 80%;
     padding: 0 10px;
     margin: 0 auto;
-    input::-webkit-outer-spin-button,
+    // input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
         -webkit-appearance: none;
     }

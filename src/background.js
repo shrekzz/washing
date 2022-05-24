@@ -1,10 +1,17 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, Menu, globalShortcut } from 'electron'
+import { app, protocol, BrowserWindow, Menu, globalShortcut, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
+function sendWindowMessage(targetWindow, message, payload) {
+  if (typeof targetWindow === 'undefined') {
+    console.log('Target window does not exist')
+    return
+  }
+  targetWindow.webContents.send(message, payload)
+}
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
@@ -42,6 +49,28 @@ async function createWindow () {
   })
   globalShortcut.register('ESC', () => {
     win.webContents.send('stopInput')
+  })
+  const workerWindow = new BrowserWindow({
+    show: true,
+    webPreferences: { 
+      nodeIntegration: true,
+      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
+    }
+  })
+  workerWindow.webContents.openDevTools()
+  workerWindow.on('closed', () => {
+    console.log('background window closed')
+  })
+  workerWindow.loadFile(workerURL)
+  // test
+  ipcMain.on('message-from-worker', (event, arg) => {
+    sendWindowMessage(win, 'message-to-renderer', arg)
+  })
+  ipcMain.on('message-from-renderer', (event, arg) => {
+    sendWindowMessage(workerWindow, 'message-from-main', arg)
+  })
+  ipcMain.on('ready', (event, arg) => {
+    console.info('child process ready')
   })
 }
 // 解决无法使用 robotjs
@@ -98,3 +127,8 @@ if (isDevelopment) {
     })
   }
 }
+
+const workerURL = isDevelopment
+  ? `./../worker.html`
+  : `file://${__dirname}/worker.html`
+

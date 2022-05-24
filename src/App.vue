@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div v-show="loading"  class="loading" >
+    <div v-if="loading"  class="loading" >
        <img src="./../build/loading.gif" />
     </div>
     <div class="loading" v-if="false">
@@ -11,7 +11,7 @@
     </a-menu>
     <a-tabs v-if="activePanes.length !== 0" class="tabs" type="editable-card" v-model="tabs[0]" hide-add  size="large" @edit="onEdit">
       <a-tab-pane v-for="item in activePanes" :key="item.key" :tab="item.tab" @click="changeActived(item.key)">
-        <component :is="item.tabContent"  @showLoading="showLoading" @setConfig="setConfig" :ref="item.key" :config="configuration" />
+        <component :is="item.tabContent"  @show-loading="showLoading" @setConfig="setConfig" :ref="item.key" :config="configuration" />
       </a-tab-pane>
     </a-tabs>
     <div class="home" v-else>
