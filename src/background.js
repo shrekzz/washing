@@ -4,6 +4,9 @@ import { app, protocol, BrowserWindow, Menu, globalShortcut, ipcMain } from 'ele
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
+const workerURL = isDevelopment
+  ? `./../public/worker.html`
+  :  './../public/worker.html'
 
 function sendWindowMessage(targetWindow, message, payload) {
   if (typeof targetWindow === 'undefined') {
@@ -33,15 +36,24 @@ async function createWindow () {
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
     }
   })
+  const workerWindow = new BrowserWindow({
+    show: true,
+    webPreferences: { 
+      nodeIntegration: true,
+      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
+    }
+  })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
+    await workerWindow.loadFile('../public/worker.html')
     if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
     createProtocol('app')
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
+    workerWindow.loadURL('app://./worker.html')
   }
   // 全局监听快捷键
   globalShortcut.register('CommandOrControl+Q', () => {
@@ -50,19 +62,12 @@ async function createWindow () {
   globalShortcut.register('ESC', () => {
     win.webContents.send('stopInput')
   })
-  const workerWindow = new BrowserWindow({
-    show: true,
-    webPreferences: { 
-      nodeIntegration: true,
-      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
-    }
-  })
+  
   workerWindow.webContents.openDevTools()
   workerWindow.on('closed', () => {
     console.log('background window closed')
   })
-  workerWindow.loadFile(workerURL)
-  // test
+   // test
   ipcMain.on('message-from-worker', (event, arg) => {
     sendWindowMessage(win, 'message-to-renderer', arg)
   })
@@ -127,8 +132,3 @@ if (isDevelopment) {
     })
   }
 }
-
-const workerURL = isDevelopment
-  ? `./../worker.html`
-  : `file://${__dirname}/worker.html`
-

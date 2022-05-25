@@ -20,11 +20,17 @@ Vue.prototype.$ipcRenderer = {
   }
 }
 ipcRenderer.on('message-to-renderer', (sender, msg) => {
-  callbackCache.forEach(cache => {
-    if (cache.type === msg.type) {
-      cache.callback && cache.callback(msg.data)
+  // callbackCache.forEach(cache => {
+  //   if (cache.type === msg.type) {
+  //     cache.callback && cache.callback(msg.data)
+  //   }
+  // })
+  for (let i = 0; i < callbackCache.length; i++) {
+    if (callbackCache[i].type === msg.type) {
+      callbackCache[i].callback && callbackCache[i].callback(msg.data)
+      callbackCache.splice(i, 1)
     }
-  })
+  }
 }) // 监听主进程的消息
 
 new Vue({
