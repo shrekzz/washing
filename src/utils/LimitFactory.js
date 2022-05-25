@@ -13,6 +13,7 @@ class LimitFactory {
     const upIndex = this.findNearesttargetber(freq, this.limitRange[1])
     const lowIndex = this.findNearesttargetber(freq, this.limitRange[0])
     const res = [freq]
+    console.time()
     const upData = golden.map((item, index) => {
       if (index === 0) {
         return '上限'
@@ -37,6 +38,7 @@ class LimitFactory {
       }
     }
     res.splice(1, 0, upData, lowData)
+    console.timeEnd()
     return this.reverseArray(res)
   }
 }

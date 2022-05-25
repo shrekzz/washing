@@ -108,6 +108,7 @@ export default {
     console.log(this.$ipcRenderer)
     this.$ipcRenderer.on('message-from-worker', (event, arg) => {
       console.log(arg)
+      console.log('1')
     })
   }
 }
