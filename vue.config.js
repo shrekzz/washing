@@ -73,7 +73,10 @@ module.exports = {
                   "oneClick": "false",
                   "allowToChangeInstallationDirectory": "true"
                 },
-                "asar": true
+                "asar": true,
+                "publish": [{
+                    "provider": "generic"
+                }]
             }
         }
     },
