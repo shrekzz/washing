@@ -12,14 +12,16 @@
     <img src="./../../build/limit_eg.png" />
     <div class="tips"><span>🗡条件选择</span></div>
     <div class="limit_range">
-      范围：<Input class=""  type="number" v-model="lowFreq" @change="checkInsert('lowFreq')" />
+      范围：<Input class=""  type="number" v-model="lowFreq" @input="checkInsert" />
       <span style="margin: 0 10px">~</span>
-      <Input  type="number" v-model="upFreq" @change="checkInsert('upFreq')" />
+      <Input  type="number" v-model="upFreq"  @input="checkInsert" />
       <span style="margin: 0 10px">Hz</span>
+      <span class="rangeTips">{{ rangeTips }}</span>
     </div>
     <div class="limit_offset">
-      上限：<div class="up"><Input addon-before="+"  type="number" v-model="up" @change="checkInsert('up')" /></div>
-      下限：<div class="low"><Input type="number" addon-before="-" v-model="low" @change="checkInsert('low')" /></div>
+      上限：<div class="up"><Input addon-before="+"  type="number" v-model="up" @input="checkInsert" /></div>
+      下限：<div class="low"><Input type="number" addon-before="-" v-model="low" @input="checkInsert" /></div>
+      <span class="offsetTips">{{ offsetTips }}</span>
     </div>
     <div class="btn-group">
       <Button class="start" type="" @click="startWork" :disabled="startFlag">开始</Button>
@@ -48,7 +50,9 @@ export default {
       upFreq: 1000,
       low: 3,
       up: 3,
-      sheet: []
+      sheet: [],
+      rangeTips: '✔',
+      offsetTips: '✔'
     }
   },
   props: ['config'],
@@ -57,27 +61,35 @@ export default {
       const path = e.target.files[0].path
       this.filePath = path
     },
-    checkInsert (type) {
-      switch (type) {
-        case 'low':
-          this.low = Number(this.low) >= 0 && Number(this.low) <= 10 ? Number(this.low) : 0
-          break
-        case 'up':
-          this.up = Number(this.up) >= 0 && Number(this.up) <= 10 ? Number(this.up) : 0
-          break
-        case 'lowFreq':
-          this.lowFreq = Number(this.lowFreq) < Number(this.upFreq) && Number(this.lowFreq) >= 0 ? Number(this.lowFreq) : 0
-          break
-        case 'upFreq':
-          this.upFreq = Number(this.upFreq) > Number(this.lowFreq) && Number(this.upFreq) <= 20000 ? Number(this.upFreq) : 20000
+    checkInsert () {
+      // 上下限校验
+      if (this.lowFreq === '' || this.upFreq === '') {
+        this.rangeTips = '范围不能为空！'
+      } else if (this.lowFreq < 20 || this.upFreq > 20000) {
+        this.rangeTips = '范围应在20~20000Hz！'
+      } else if (this.lowFreq >= this.upFreq || this.upFreq <= this.lowFreq) {
+        this.rangeTips = '请输入正确的范围！'
+      } else {
+        this.rangeTips = '✔'
       }
+      // 偏移校验
+      if (this.low === '' || this.up === '') {
+        this.offsetTips = '框线偏移不能为空'
+      } else if (this.low < 0 || this.up < 0 || this.low >= 10 || this.low >= 10) {
+        this.offsetTips = '框线偏移越界'
+      } else {
+        this.offsetTips = '✔'
+      }
+      console.log(this.lowFreq)
     },
     openWork () {
       shell.openPath(this.config.workDir + 'output')
     },
     startWork () {
-      this.$emit('show-loading', true)
-      this.$ipcRenderer.send('message-to-renderer', { type: 'limit2worker', data: this.filePath })
+      if (this.rangeTips === '✔' && this.offsetTips === '✔') {
+        this.$emit('show-loading', true)
+        this.$ipcRenderer.send('message-to-renderer', { type: 'limit2worker', data: this.filePath })
+      }
     }
   },
   computed: {
@@ -88,7 +100,7 @@ export default {
   mounted () {
     const _this = this
     this.$ipcRenderer.on('read4limit', (arg) => {
-      const LF = new LimitFactory(arg, [this.low, this.up], [this.lowFreq, this.upFreq])
+      const LF = new LimitFactory(arg[0].data, [this.low, this.up], [this.lowFreq, this.upFreq])
       const res = LF.getResult()
       const buffer = xlsx.build([{
         name: 'ANC',
@@ -137,13 +149,17 @@ export default {
   .limit_range {
     display: flex;
     align-items: center;
-    margin: 5px 0;
+    margin: 10px 0;
     input {
       width: 75px;
     }
+    .rangeTips {
+      color: red;
+      margin-left: 5px;
+    }
   }
   .limit_offset {
-    margin: 5px 0;
+    margin: 10px 0 ;
     display: flex;
     align-items: center;
     .up, .low {
@@ -151,6 +167,10 @@ export default {
       input {
         width: 40px;
       }
+    }
+    .offsetTips {
+      margin-left: -20px;
+      color: red;
     }
   }
   .btn-group {

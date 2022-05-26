@@ -4,9 +4,6 @@ import { app, protocol, BrowserWindow, Menu, globalShortcut, ipcMain } from 'ele
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
-const workerURL = isDevelopment
-  ? `./../public/worker.html`
-  :  './../public/worker.html'
 
 function sendWindowMessage(targetWindow, message, payload) {
   if (typeof targetWindow === 'undefined') {
@@ -37,7 +34,7 @@ async function createWindow () {
     }
   })
   const workerWindow = new BrowserWindow({
-    show: true,
+    show: false,
     webPreferences: { 
       nodeIntegration: true,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
@@ -63,6 +60,10 @@ async function createWindow () {
     win.webContents.send('stopInput')
   })
   
+  win.on('closed', function () {
+    app.quit()
+  })
+
   workerWindow.webContents.openDevTools()
   workerWindow.on('closed', () => {
     console.log('background window closed')

@@ -1,23 +1,23 @@
 <template>
   <div class="handle">
     <div class="content">
-      <div class="tips" style="margin-top: 0">1️.选择产线数据所在的目录</div>
+      <div class="tips" style="margin-top: 0">👨‍🌾在选择产线数据所在的目录</div>
       <div class="getFileBox">
         <Button class="chooseBtn" >选择文件目录</Button>
         <label class="getFilePath">
           <input style="display: none" class="getFilePath" type="file" webkitdirectory @change="getFilePath($event)" />
         </label>
       </div>
-      <div class="tips" style="margin-top: 0">2.数据表类型为行还是列？</div>
+      <div class="tips" style="margin-top: 0">📏数据表类型是行还是列？</div>
       <RadioGroup v-model="checkedType" buttonStyle="solid">
         <RadioButton value="row">行</RadioButton>
         <RadioButton value="column">列</RadioButton>
       </RadioGroup>
-      <div class="tips" style="margin-top: 0">3.选择需要处理的表</div>
+      <div class="tips" style="margin-top: 0">📊选择需要处理的表</div>
       <span class="no-names" v-if="filePath === ''">还未选择数据所在目录！</span>
       <CheckboxGroup v-if="filePath !== ''" class="checkboxgroup" :options="sheetListNames" v-model="checkedNames" ></CheckboxGroup>
       <div>
-        <div class="tips">4.选择需要的{{ checkedType === 'row' ? '行' : '列' }}(只能输入数字)</div>
+        <div class="tips">📋选择需要的{{ checkedType === 'row' ? '行' : '列' }}(只能输入数字)</div>
         <div class="btn-group">
           <Button type="primary" class="add" @click="handleRow('add')">加一{{ checkedType === 'row' ? '行' : '列' }}</Button>
           <Button type="primary" class="sub" @click="handleRow('')">减一{{ checkedType === 'row' ? '行' : '列' }}</Button>
@@ -96,7 +96,7 @@ export default {
     /* 处理输入 去重、去空、转为int */
     checkInsert () {
       const res = [...new Set(this.rows)].filter(item => item !== '').map(item => parseInt(item))
-      this.$emit('showLoading', true)
+      this.$emit('show-loading', true)
       this.handleData(res)
     },
     /* 打开工作目录 */
@@ -145,7 +145,7 @@ export default {
             if (err) {
               logger.error('写入失败: ', err)
             } else {
-              _this.$emit('showLoading', false)
+              _this.$emit('show-loading', false)
             }
           })
         }
