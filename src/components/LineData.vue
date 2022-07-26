@@ -124,6 +124,7 @@ export default {
                 sheetlist[sheet].data = reverseArray(sheetlist[sheet].data)
               })
             }
+            console.log(file)
             _this.checkedNames.forEach((sheet, index) => {
               rowArr.forEach((row, rowIndex) => {
                 sheetlist[sheet].data[row - 1][0] = mac

@@ -12,15 +12,15 @@
     <img src="./../../build/limit_eg.png" />
     <div class="tips"><span>🗡条件选择</span></div>
     <div class="limit_range">
-      范围：<Input class=""  type="number" v-model="lowFreq" @input="checkInsert" />
+      范围：<Input class=""  type="number" v-model="lowFreq" @blur="checkRange" />
       <span style="margin: 0 10px">~</span>
-      <Input  type="number" v-model="upFreq"  @input="checkInsert" />
+      <Input  type="number" v-model="upFreq"  @blur="checkRange" />
       <span style="margin: 0 10px">Hz</span>
       <span class="rangeTips">{{ rangeTips }}</span>
     </div>
     <div class="limit_offset">
-      上限：<div class="up"><Input addon-before="+"  type="number" v-model="up" @input="checkInsert" /></div>
-      下限：<div class="low"><Input type="number" addon-before="-" v-model="low" @input="checkInsert" /></div>
+      上限：<div class="up"><Input addon-before="+"  type="number" v-model="up" @blur="checkLimit" /></div>
+      下限：<div class="low"><Input type="number" addon-before="-" v-model="low" @blur="checkLimit" /></div>
       <span class="offsetTips">{{ offsetTips }}</span>
     </div>
     <div class="btn-group">
@@ -61,26 +61,26 @@ export default {
       const path = e.target.files[0].path
       this.filePath = path
     },
-    checkInsert () {
-      // 上下限校验
-      if (this.lowFreq === '' || this.upFreq === '') {
-        this.rangeTips = '范围不能为空！'
-      } else if (this.lowFreq < 20 || this.upFreq > 20000) {
-        this.rangeTips = '范围应在20~20000Hz！'
-      } else if (this.lowFreq >= this.upFreq || this.upFreq <= this.lowFreq) {
-        this.rangeTips = '请输入正确的范围！'
-      } else {
-        this.rangeTips = '✔'
-      }
-      // 偏移校验
+    checkLimit () {
       if (this.low === '' || this.up === '') {
         this.offsetTips = '框线偏移不能为空'
-      } else if (this.low < 0 || this.up < 0 || this.low >= 10 || this.low >= 10) {
+      } else if (this.low < 0 || this.up < 0 || this.low >= 10 || this.up >= 10) {
         this.offsetTips = '框线偏移越界'
       } else {
         this.offsetTips = '✔'
       }
-      console.log(this.lowFreq)
+    },
+    checkRange () {
+      // 上下限校验
+      if (this.lowFreq === '' || this.upFreq === '') {
+        this.rangeTips = '范围不能为空！'
+      } else if (this.lowFreq < 10 || this.upFreq > 20000) {
+        this.rangeTips = '范围应在10~20000Hz！'
+      } else if (this.lowFreq >= this.upFreq) {
+        this.rangeTips = '请输入正确的范围！'
+      } else {
+        this.rangeTips = '✔'
+      }
     },
     openWork () {
       shell.openPath(this.config.workDir + 'output')
@@ -106,7 +106,7 @@ export default {
         name: 'ANC',
         data: res
       }])
-      writeFile(`${this.config.workDir}/output/shrekz.xlsx`, buffer, err => {
+      writeFile(`${this.config.workDir}/output/shrekz${new Date().getMinutes()}${new Date().getSeconds()}.xlsx`, buffer, err => {
         if (err) {
           console.log(err)
         } else {
