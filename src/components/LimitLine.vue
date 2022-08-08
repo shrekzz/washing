@@ -46,12 +46,17 @@
       <span class="offsetTips">{{ offsetTips }}</span>
     </div>
     <div class="btn-group">
+<<<<<<< HEAD
       <Button class="start" type="" @click="startWork" :disabled="startFlag"
         >开始</Button
       >
       <Button class="open" type="primary" @click="openWork"
         >打开工作目录</Button
       >
+=======
+      <Button class="start" type="" @click="startWork" :disabled="startFlag">开始</Button>
+      <Button class="open" type="primary" @click="openWork" >打开工作目录</Button>
+>>>>>>> v0.1.9
     </div>
   </div>
 </template>
@@ -118,6 +123,7 @@ export default {
     },
     startWork() {
       const _this = this
+<<<<<<< HEAD
       if (this.rangeTips === '✔' && this.offsetTips === '✔') {
         this.$emit('show-loading', true)
         this.$ipcRenderer.send('message-to-renderer', {
@@ -152,14 +158,34 @@ export default {
           )
         })
       }
+=======
+      const sheet = xlsx.parse(this.filePath)[2].data
+      const LF = new LimitFactory(sheet, [this.low, this.up], [this.lowFreq, this.upFreq])
+      const res = LF.getResult()
+      const buffer = xlsx.build([{
+        name: 'ANC',
+        data: res
+      }])
+      writeFile(`${this.config.workDir}/output/shrekz.xlsx`, buffer, err => {
+        if (err) {
+          console.log(err)
+        } else {
+          _this.$emit('show-loading', false)
+        }
+      })
+>>>>>>> v0.1.9
     }
   },
   computed: {
     startFlag() {
       return this.filePath === ''
     }
+<<<<<<< HEAD
   },
   mounted() {}
+=======
+  }
+>>>>>>> v0.1.9
 }
 </script>
 

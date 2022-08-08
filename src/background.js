@@ -5,18 +5,6 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-function sendWindowMessage(targetWindow, message, payload) {
-  if (typeof targetWindow === 'undefined') {
-    console.log('Target window does not exist')
-    return
-  }
-  targetWindow.webContents.send(message, payload)
-}
-// Scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged([
-  { scheme: 'app', privileges: { secure: true, standard: true } }
-])
-
 Menu.setApplicationMenu(null)
 
 async function createWindow () {
@@ -59,6 +47,7 @@ async function createWindow () {
   globalShortcut.register('ESC', () => {
     win.webContents.send('stopInput')
   })
+<<<<<<< HEAD
   
   win.on('closed', function () {
     app.quit()
@@ -78,6 +67,8 @@ async function createWindow () {
   ipcMain.on('ready', (event, arg) => {
     console.info('child process ready')
   })
+=======
+>>>>>>> v0.1.9
 }
 // 解决无法使用 robotjs
 
