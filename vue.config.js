@@ -74,9 +74,7 @@ module.exports = {
                   "allowToChangeInstallationDirectory": "true"
                 },
                 "asar": true,
-                "publish": [{
-                    "provider": "generic"
-                }]
+                "publish": ['github']
             }
         }
     },
