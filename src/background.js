@@ -68,7 +68,7 @@ async function createWindow () {
   workerWindow.on('closed', () => {
     console.log('background window closed')
   })
-   // test
+
   ipcMain.on('message-from-worker', (event, arg) => {
     sendWindowMessage(win, 'message-to-renderer', arg)
   })

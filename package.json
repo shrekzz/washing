@@ -60,8 +60,19 @@
       "parser": "babel-eslint"
     },
     "rules": {
-      "vue/no-unused-components": "off"
+      "vue/no-unused-components": "off",
+      "space-before-function-paren": 0
     }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": false,
+    "stylelintIntegration": true,
+    "eslintIntegration": true,
+    "insertPragma": false,
+    "trailingComma": "none",
+    "arrowParens": "avoid",
+    "prettier.bracketSpacing": true
   },
   "browserslist": [
     "> 1%",

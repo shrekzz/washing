@@ -2,30 +2,56 @@
   <div class="limit">
     <span class="tips">💁‍♂️选择待处理文件</span>
     <div class="getFileBox">
-        <Button class="chooseBtn" >选择文件</Button>
-        <label class="getFilePath">
-          <input style="display: none" class="getFilePath" accept=".xlsx" type="file" @change="getFilePath($event)" />
-        </label>
-        {{ filePath }}
+      <Button class="chooseBtn">选择文件</Button>
+      <label class="getFilePath">
+        <input
+          style="display: none"
+          class="getFilePath"
+          accept=".xlsx"
+          type="file"
+          @change="getFilePath($event)"
+        />
+      </label>
+      {{ filePath }}
     </div>
     <div>例：文件格式如下：</div>
     <img src="./../../build/limit_eg.png" />
     <div class="tips"><span>🗡条件选择</span></div>
     <div class="limit_range">
-      范围：<Input class=""  type="number" v-model="lowFreq" @blur="checkRange" />
+      范围：<Input
+        class=""
+        type="number"
+        v-model="lowFreq"
+        @blur="checkRange"
+      />
       <span style="margin: 0 10px">~</span>
-      <Input  type="number" v-model="upFreq"  @blur="checkRange" />
+      <Input type="number" v-model="upFreq" @blur="checkRange" />
       <span style="margin: 0 10px">Hz</span>
       <span class="rangeTips">{{ rangeTips }}</span>
     </div>
     <div class="limit_offset">
-      上限：<div class="up"><Input addon-before="+"  type="number" v-model="up" @blur="checkLimit" /></div>
-      下限：<div class="low"><Input type="number" addon-before="-" v-model="low" @blur="checkLimit" /></div>
+      上限：
+      <div class="up">
+        <Input addon-before="+" type="number" v-model="up" @blur="checkLimit" />
+      </div>
+      下限：
+      <div class="low">
+        <Input
+          type="number"
+          addon-before="-"
+          v-model="low"
+          @blur="checkLimit"
+        />
+      </div>
       <span class="offsetTips">{{ offsetTips }}</span>
     </div>
     <div class="btn-group">
-      <Button class="start" type="" @click="startWork" :disabled="startFlag">开始</Button>
-      <Button class="open" type="primary" @click="openWork" >打开工作目录</Button>
+      <Button class="start" type="" @click="startWork" :disabled="startFlag"
+        >开始</Button
+      >
+      <Button class="open" type="primary" @click="openWork"
+        >打开工作目录</Button
+      >
     </div>
   </div>
 </template>
@@ -43,7 +69,7 @@ export default {
     Input,
     Button
   },
-  data () {
+  data() {
     return {
       filePath: '',
       lowFreq: 50,
@@ -57,20 +83,25 @@ export default {
   },
   props: ['config'],
   methods: {
-    getFilePath (e) {
+    getFilePath(e) {
       const path = e.target.files[0].path
       this.filePath = path
     },
-    checkLimit () {
+    checkLimit() {
       if (this.low === '' || this.up === '') {
         this.offsetTips = '框线偏移不能为空'
-      } else if (this.low < 0 || this.up < 0 || this.low >= 10 || this.up >= 10) {
+      } else if (
+        this.low < 0 ||
+        this.up < 0 ||
+        this.low >= 10 ||
+        this.up >= 10
+      ) {
         this.offsetTips = '框线偏移越界'
       } else {
         this.offsetTips = '✔'
       }
     },
-    checkRange () {
+    checkRange() {
       // 上下限校验
       if (this.lowFreq === '' || this.upFreq === '') {
         this.rangeTips = '范围不能为空！'
@@ -82,70 +113,84 @@ export default {
         this.rangeTips = '✔'
       }
     },
-    openWork () {
+    openWork() {
       shell.openPath(this.config.workDir + 'output')
     },
-    startWork () {
+    startWork() {
+      const _this = this
       if (this.rangeTips === '✔' && this.offsetTips === '✔') {
         this.$emit('show-loading', true)
-        this.$ipcRenderer.send('message-to-renderer', { type: 'limit2worker', data: this.filePath })
+        this.$ipcRenderer.send('message-to-renderer', {
+          type: 'limit2worker',
+          data: this.filePath
+        })
+        this.$ipcRenderer.on('read4limit', arg => {
+          const LF = new LimitFactory(
+            arg[0].data,
+            [this.low, this.up],
+            [this.lowFreq, this.upFreq]
+          )
+          const res = LF.getResult()
+          const buffer = xlsx.build([
+            {
+              name: 'ANC',
+              data: res
+            }
+          ])
+          writeFile(
+            `${
+              this.config.workDir
+            }/output/shrekz${new Date().getMinutes()}${new Date().getSeconds()}.xlsx`,
+            buffer,
+            err => {
+              if (err) {
+                console.log(err)
+              } else {
+                _this.$emit('show-loading', false)
+              }
+            }
+          )
+        })
       }
     }
   },
   computed: {
-    startFlag () {
+    startFlag() {
       return this.filePath === ''
     }
   },
-  mounted () {
-    const _this = this
-    this.$ipcRenderer.on('read4limit', (arg) => {
-      const LF = new LimitFactory(arg[0].data, [this.low, this.up], [this.lowFreq, this.upFreq])
-      const res = LF.getResult()
-      const buffer = xlsx.build([{
-        name: 'ANC',
-        data: res
-      }])
-      writeFile(`${this.config.workDir}/output/shrekz${new Date().getMinutes()}${new Date().getSeconds()}.xlsx`, buffer, err => {
-        if (err) {
-          console.log(err)
-        } else {
-          _this.$emit('show-loading', false)
-        }
-      })
-    })
-  }
+  mounted() {}
 }
 </script>
 
 <style lang="less">
 .limit {
-    width: 80%;
-    padding: 0 10px;
-    margin: 0 auto;
-    // input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
+  width: 80%;
+  padding: 0 10px;
+  margin: 0 auto;
+  // input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+  input[type='number'] {
+    -moz-appearance: textfield;
+  }
+  .tips {
+    margin: 10px 0;
+    font-size: 20px;
+  }
+  .getFileBox {
+    position: relative;
+    margin: 10px 0;
+    .getFilePath {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 116px;
+      height: 32px;
+      cursor: pointer;
     }
-    input[type="number"]{
-        -moz-appearance: textfield;
-    }
-   .tips {
-     margin: 10px 0;
-     font-size: 20px;
-   }
-   .getFileBox {
-      position: relative;
-      margin:10px 0;
-      .getFilePath {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 116px;
-        height: 32px;
-        cursor: pointer;
-      }
-    }
+  }
   .limit_range {
     display: flex;
     align-items: center;
@@ -159,10 +204,11 @@ export default {
     }
   }
   .limit_offset {
-    margin: 10px 0 ;
+    margin: 10px 0;
     display: flex;
     align-items: center;
-    .up, .low {
+    .up,
+    .low {
       width: 100px;
       input {
         width: 40px;
@@ -178,10 +224,12 @@ export default {
     margin: 15px 0;
     width: 100%;
     justify-content: space-between;
-    .add, .sub{
+    .add,
+    .sub {
       width: 48%;
     }
-     .start, .open {
+    .start,
+    .open {
       width: 48%;
     }
   }
