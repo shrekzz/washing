@@ -1,7 +1,9 @@
 import Vue from 'vue'
 import App from './App.vue'
 import { ipcRenderer } from 'electron'
+import { Modal } from 'ant-design-vue'
 Vue.config.productionTip = false
+Vue.use(Modal)
 
 const callbackCache = []
 Vue.prototype.$ipcRenderer = {
