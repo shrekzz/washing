@@ -71,7 +71,8 @@ module.exports = {
                 "icon": "build/logo2.ico",
                 "nsis": {
                   "oneClick": "false",
-                  "allowToChangeInstallationDirectory": "true"
+                  "allowToChangeInstallationDirectory": "true",
+                  "perMachine": "true"
                 },
                 "asar": true,
                 "publish": ['github']

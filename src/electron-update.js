@@ -1,14 +1,14 @@
 import { autoUpdater, NoOpLogger } from "electron-updater";
-// import config from ".././package.json";
 import { ipcMain, app, dialog } from "electron";
-import { logger } from '../utils/log.js'
+import { logger } from './utils/log.js'
 
 let mainWindow = null;
 autoUpdater.autoDownload = false;
 let canQuit = false;
 let version = ''
 
-export function updateHandle(window) {
+
+export function updateHandle(window, autoUpdateFlag) {
   mainWindow = window;
   let message = {
     error: "检查更新出错",
@@ -16,9 +16,11 @@ export function updateHandle(window) {
     updateAva: "检测到新版本，正在下载……",
     updateNotAva: "现在使用的就是最新版本，不用更新",
   };
-
   // autoUpdater.setFeedURL(feedUrl);
-  autoUpdater.checkForUpdates();
+  // autoUpdater.checkForUpdatesAndNotify()
+  if(autoUpdateFlag) {
+    autoUpdater.checkForUpdates()
+  }
 
   //监听升级失败事件
   autoUpdater.on("error", function (error) {
@@ -26,6 +28,7 @@ export function updateHandle(window) {
       cmd: "error",
       message: error,
     });
+    logger.info(error)
     logger.error("监听系统升级事件失败");
   });
 
@@ -35,7 +38,8 @@ export function updateHandle(window) {
       cmd: "checking-for-update",
       message: message,
     });
-    console.log("检查");
+    logger.info("监听系统升级事件：")
+    logger.info(message)
     logger.info("开始监听系统升级事件");
   });
   //监听没有可用更新事件
@@ -44,6 +48,8 @@ export function updateHandle(window) {
       cmd: "update-not-available",
       message: message,
     });
+    logger.info("没有新版本： ")
+    logger.info(message)
     logger.info("没有发现新版本");
   });
   //监听发现可用更新事件
@@ -53,8 +59,8 @@ export function updateHandle(window) {
       cmd: "update-available",
       message: message,
     });
-    autoUpdater.autoDownload = true;
     logger.info("发现有新版本");
+    autoUpdater.autoDownload = true
   });
 
   // 更新下载进度事件
@@ -130,7 +136,7 @@ export function updateHandle(window) {
   //   autoUpdater.checkForUpdates();
   // });
 }
-//给渲染进程发送消息
-// function sendUpdateMessage(text) {
-//   mainWindow.webContents.send("message", text);
-// }
+// 给渲染进程发送消息
+function sendUpdateMessage(text) {
+  mainWindow.webContents.send("message", text);
+}

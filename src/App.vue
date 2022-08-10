@@ -109,7 +109,7 @@ export default {
         this.tabs = [activeKey]
       }
     },
-    setConfig (cfg = { workDir: 'D:/WASHING_WORK/', defaultTabs: [] }) {
+    setConfig (cfg = { workDir: 'D:/WASHING_WORK/', defaultTabs: [], autoUpdateFlag: false }) {
       this.configuration = cfg
       const config = JSON.stringify(cfg)
       writeFile('./config.json', config, err => {

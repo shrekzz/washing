@@ -3,7 +3,24 @@
 import { app, protocol, BrowserWindow, Menu, globalShortcut, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import { updateHandle } from "./electron-update.js"
+import { logger } from './utils/log.js'
+import { readFile } from 'fs'
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
+
+
+function sendWindowMessage(targetWindow, message, payload) {
+  if (typeof targetWindow === 'undefined') {
+    console.log('Target window does not exist')
+    return
+  }
+  targetWindow.webContents.send(message, payload)
+}
+
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'app', privileges: { secure: true, standard: true } }
+])
 
 Menu.setApplicationMenu(null)
 
@@ -21,6 +38,14 @@ async function createWindow () {
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
     }
   })
+  readFile('./config.json', (err, data) => {
+    if (err) {
+      logger.error(err)
+    } else {
+      const autoUpdateFlag = JSON.parse(data).autoUpdateFlag
+      updateHandle(win, autoUpdateFlag)
+  }})
+  
   const workerWindow = new BrowserWindow({
     show: false,
     webPreferences: { 
@@ -47,8 +72,7 @@ async function createWindow () {
   globalShortcut.register('ESC', () => {
     win.webContents.send('stopInput')
   })
-<<<<<<< HEAD
-  
+
   win.on('closed', function () {
     app.quit()
   })
@@ -67,8 +91,7 @@ async function createWindow () {
   ipcMain.on('ready', (event, arg) => {
     console.info('child process ready')
   })
-=======
->>>>>>> v0.1.9
+  // 更新
 }
 // 解决无法使用 robotjs
 
@@ -109,6 +132,14 @@ app.on('ready', async () => {
   }
   createWindow()
 })
+
+//记录日志
+ipcMain.handle("message", async (event, arg) => {
+  //与渲染进程通信
+  return new Promise((resolve, reject) => {
+    logger.info(arg);
+  });
+});
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

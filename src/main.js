@@ -1,9 +1,8 @@
 import Vue from 'vue'
 import App from './App.vue'
-
+import { ipcRenderer } from 'electron'
 Vue.config.productionTip = false
 
-<<<<<<< HEAD
 const callbackCache = []
 Vue.prototype.$ipcRenderer = {
   send: (msgType, msgData) => {
@@ -33,8 +32,6 @@ ipcRenderer.on('message-to-renderer', (sender, msg) => {
   }
 }) // 监听主进程的消息
 
-=======
->>>>>>> v0.1.9
 new Vue({
   render: h => h(App)
 }).$mount('#app')

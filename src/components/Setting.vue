@@ -1,6 +1,7 @@
 <template>
   <div class="Setting">
     <div class="SettingGlobal">
+      <span>🤷‍♂️以管理员模式打开设置才有效</span>
       <span class="title">全局设置</span>
       <div>默认打开标签</div>
       <CheckboxGroup :options="tabs" v-model="configuration.defaultTabs" ></CheckboxGroup>
@@ -13,24 +14,31 @@
         <Input v-model="configuration.workDir" class="filePath"/>
       </div>
     </div>
-    <div >
+    <div class="SettingVersion">
       <span class="title">版本更新</span>
-      ver 0.1.8
+      <span>washing {{ version }}</span>
+      <div class="autoUpdate">
+        <Checkbox v-model="configuration.autoUpdateFlag" />
+        <label>自动更新</label>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { Input, Button, Checkbox } from 'ant-design-vue'
+import { version } from '../../package.json'
 export default {
   components: {
     Input,
     Button,
+    Checkbox,
     CheckboxGroup: Checkbox.Group
   },
   props: ['config'],
   data () {
     return {
+      version: version,
       tabs: ['AP数据处理', '产线数据处理', '自动输入FAQ', '自动生成框线'],
       configuration: this.config
     }
@@ -68,6 +76,14 @@ export default {
         }
         .filePath {
           width: 60%;
+        }
+      }
+    }
+    .SettingVersion {
+      .autoUpdate {
+        margin-top: 5px;
+        label {
+          margin-right: 8px;
         }
       }
     }
