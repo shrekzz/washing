@@ -1,11 +1,23 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, Menu, globalShortcut } from 'electron'
+import { app, protocol, BrowserWindow, Menu, globalShortcut, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import { updateHandle } from "./electron-update.js"
+import { logger } from './utils/log.js'
+import { readFile } from 'fs'
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
-// Scheme must be registered before the app is ready
+
+function sendWindowMessage(targetWindow, message, payload) {
+  if (typeof targetWindow === 'undefined') {
+    console.log('Target window does not exist')
+    return
+  }
+  targetWindow.webContents.send(message, payload)
+}
+
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
@@ -26,15 +38,32 @@ async function createWindow () {
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
     }
   })
+  readFile('./config.json', (err, data) => {
+    if (err) {
+      logger.error(err)
+    } else {
+      const autoUpdateFlag = JSON.parse(data).autoUpdateFlag
+      updateHandle(win, autoUpdateFlag)
+  }})
+  
+  const workerWindow = new BrowserWindow({
+    show: false,
+    webPreferences: { 
+      nodeIntegration: true,
+      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
+    }
+  })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
+    await workerWindow.loadFile('../public/worker.html')
     if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
     createProtocol('app')
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
+    workerWindow.loadURL('app://./worker.html')
   }
   // 全局监听快捷键
   globalShortcut.register('CommandOrControl+Q', () => {
@@ -43,6 +72,26 @@ async function createWindow () {
   globalShortcut.register('ESC', () => {
     win.webContents.send('stopInput')
   })
+
+  win.on('closed', function () {
+    app.quit()
+  })
+
+  workerWindow.webContents.openDevTools()
+  workerWindow.on('closed', () => {
+    console.log('background window closed')
+  })
+
+  ipcMain.on('message-from-worker', (event, arg) => {
+    sendWindowMessage(win, 'message-to-renderer', arg)
+  })
+  ipcMain.on('message-from-renderer', (event, arg) => {
+    sendWindowMessage(workerWindow, 'message-from-main', arg)
+  })
+  ipcMain.on('ready', (event, arg) => {
+    console.info('child process ready')
+  })
+  // 更新
 }
 // 解决无法使用 robotjs
 
@@ -83,6 +132,14 @@ app.on('ready', async () => {
   }
   createWindow()
 })
+
+//记录日志
+ipcMain.handle("message", async (event, arg) => {
+  //与渲染进程通信
+  return new Promise((resolve, reject) => {
+    logger.info(arg);
+  });
+});
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

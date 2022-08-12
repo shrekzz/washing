@@ -1,6 +1,6 @@
 {
   "name": "washing",
-  "version": "0.1.6",
+  "version": "0.1.9",
   "author": "shrekz",
   "private": true,
   "scripts": {
@@ -10,14 +10,17 @@
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps"
+    "postuninstall": "electron-builder install-app-deps",
+    "publish": "vue-cli-service electron:build --win --x64 -p always"
   },
   "main": "background.js",
   "dependencies": {
     "ant-design-vue": "^1.7.8",
     "core-js": "^3.6.5",
+    "electron-builder": "^23.0.3",
     "electron-log": "^4.4.6",
     "electron-rebuild": "^3.2.7",
+    "electron-updater": "4.0.6",
     "less-loader": "6.0.0",
     "node-cmd": "^5.0.0",
     "node-xlsx": "^0.17.2",
@@ -39,6 +42,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.0",
     "eslint-plugin-vue": "^6.2.2",
+    "lodash-webpack-plugin": "^0.11.6",
     "node-sass": "^4.12.0",
     "vue-cli-plugin-electron-builder": "~2.1.1",
     "vue-template-compiler": "^2.6.11"
@@ -55,7 +59,20 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "rules": {
+      "vue/no-unused-components": "off",
+      "space-before-function-paren": 0
+    }
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": false,
+    "stylelintIntegration": true,
+    "eslintIntegration": true,
+    "insertPragma": false,
+    "trailingComma": "none",
+    "arrowParens": "avoid",
+    "prettier.bracketSpacing": true
   },
   "browserslist": [
     "> 1%",

@@ -6,6 +6,7 @@
         <a-select-option value="BES">BES</a-select-option>
         <a-select-option value="wuqi">wuqi</a-select-option>
         <a-select-option value="Airoha">Airoha</a-select-option>
+        <a-select-option value="Lanxun">Lanxun</a-select-option>
         <a-select-option value="BES Config">BES Config</a-select-option>
       </a-select>
       <a-textarea style="height: 270px" v-model="text" placeholder="请输入参数"></a-textarea>
@@ -82,6 +83,7 @@ export default {
   -moz-user-select: none;
   -khtml-user-select: none;
   user-select: none;
+  height: 500px;
 }
 .a-text {
   width: 80%;

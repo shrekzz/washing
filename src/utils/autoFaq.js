@@ -105,8 +105,37 @@ const autoMove = (iirArr, type) => {
         mouseY += 30
       }
       break
+    case 'Lanxun': {
+      const IIR = [
+        [mouseX + 65, mouseY + 370],
+        [mouseX + 65, mouseY + 400],
+        [mouseX + 65, mouseY + 430]
+      ]
+      let X = mouseX
+      let Y = mouseY
+      faq = setTwoDimensionalArray(iirArr)
+      for (let i = 0; i < faq.length; i++) {
+        robot.moveMouse(X, Y)
+        robot.mouseClick()
+        for (let j = 0; j < faq[i].length; j++) {
+          robot.moveMouse(IIR[j][0], IIR[j][1])
+          robot.mouseClick()
+          clipboard.writeText(String(Math.round(faq[i][j] * 100) / 100))
+          robot.keyTap('v', 'control')
+          robot.keyTap('enter')
+        }
+        if (i !== 3) {
+          X += 35
+        } else {
+          X = mouseX
+          Y += 35
+        }
+      }
+      break
+    }
   }
-  if (!type.includes('BES')) {
+  if (!type.includes('BES') && type !== 'Lanxun') {
+    console.log('sb')
     for (let x = 0; x < faq.length; x++) {
       for (let y = 0; y < faq[0].length; y++) {
         if (x === 0 && y === 0) {
@@ -116,7 +145,10 @@ const autoMove = (iirArr, type) => {
         if (y === 1 && faq[x][y] <= 0.1) {
           faq[x][y] = 0.1
         }
-        const input = String(Math.round(faq[x][y] * 100) / 100)
+        let input = String(Math.round(faq[x][y] * 100) / 100)
+        if (y === 0) {
+          input = String(Math.round(input))
+        }
         robot.keyTap('a', 'control')
         clipboard.writeText(input)
         robot.keyTap('v', 'control')
@@ -128,8 +160,7 @@ const autoMove = (iirArr, type) => {
       }
     }
   }
-  // var mouse = robot.getMousePos()
-  // console.log('Mouse is at x:' + mouse.x + ' y:' + mouse.y)
+  console.log('Mouse is at x:' + mouse.x + ' y:' + mouse.y)
 }
 
 export { autoMove }

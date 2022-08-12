@@ -1,23 +1,23 @@
 <template>
   <div class="handle">
     <div class="content">
-      <div class="tips" style="margin-top: 0">1️.选择产线数据所在的目录</div>
+      <div class="tips" style="margin-top: 0">👨‍🌾在选择产线数据所在的目录</div>
       <div class="getFileBox">
         <Button class="chooseBtn" >选择文件目录</Button>
         <label class="getFilePath">
           <input style="display: none" class="getFilePath" type="file" webkitdirectory @change="getFilePath($event)" />
         </label>
       </div>
-      <div class="tips" style="margin-top: 0">2.数据表类型为行还是列？</div>
+      <div class="tips" style="margin-top: 0">📏数据表类型是行还是列？</div>
       <RadioGroup v-model="checkedType" buttonStyle="solid">
         <RadioButton value="row">行</RadioButton>
         <RadioButton value="column">列</RadioButton>
       </RadioGroup>
-      <div class="tips" style="margin-top: 0">3.选择需要处理的表</div>
+      <div class="tips" style="margin-top: 0">📊选择需要处理的表</div>
       <span class="no-names" v-if="filePath === ''">还未选择数据所在目录！</span>
       <CheckboxGroup v-if="filePath !== ''" class="checkboxgroup" :options="sheetListNames" v-model="checkedNames" ></CheckboxGroup>
       <div>
-        <div class="tips">4.选择需要的{{ checkedType === 'row' ? '行' : '列' }}(只能输入数字)</div>
+        <div class="tips">📋选择需要的{{ checkedType === 'row' ? '行' : '列' }}(只能输入数字)</div>
         <div class="btn-group">
           <Button type="primary" class="add" @click="handleRow('add')">加一{{ checkedType === 'row' ? '行' : '列' }}</Button>
           <Button type="primary" class="sub" @click="handleRow('')">减一{{ checkedType === 'row' ? '行' : '列' }}</Button>
@@ -40,11 +40,12 @@ import { mkdir, existsSync, readdir, writeFile } from 'fs'
 import { Button, Input, Checkbox, Radio } from 'ant-design-vue'
 import { shell } from 'electron'
 import xlsx from 'node-xlsx'
-import { reverseArray, createArray } from '../utils/utils'
+import { reverseArray, createArray, timeFormat } from '../utils/utils'
 import { logger } from '../utils/log'
 
 export default {
   name: 'LineData',
+  props: ['config'],
   data () {
     return {
       rows: [1],
@@ -54,7 +55,8 @@ export default {
       checkedType: 'row',
       sheetListNames: [],
       // 选中的表
-      checkedNames: []
+      checkedNames: [],
+      OUTPUT_DIR: this.config.workDir + 'output\\'
     }
   },
   components: {
@@ -96,12 +98,12 @@ export default {
     /* 处理输入 去重、去空、转为int */
     checkInsert () {
       const res = [...new Set(this.rows)].filter(item => item !== '').map(item => parseInt(item))
-      this.$emit('showLoading', true)
+      this.$emit('show-loading', true)
       this.handleData(res)
     },
     /* 打开工作目录 */
     openWork () {
-      shell.openPath('d:/Washing_Output')
+      shell.openPath(this.OUTPUT_DIR)
     },
     /* 开始处理数据 */
     handleData (res) {
@@ -115,10 +117,10 @@ export default {
       const resSheet = createArray(this.checkedNames.length, rowArr.length)
       readdir(handlePath, (err, files) => {
         if (!err) {
-          files.forEach(file => {
+          files.forEach((file, i) => {
             const path = `${handlePath}/${file}`
             const sheetlist = xlsx.parse(path)
-            console.log(file)
+            const mac = file.split('_')[2]
             if (this.checkedType === 'column') {
               _this.checkedNames.forEach(sheet => {
                 sheetlist[sheet].data = reverseArray(sheetlist[sheet].data)
@@ -126,9 +128,11 @@ export default {
             }
             _this.checkedNames.forEach((sheet, index) => {
               rowArr.forEach((row, rowIndex) => {
+                sheetlist[sheet].data[row - 1][0] = mac
                 resSheet[index][rowIndex].push(sheetlist[sheet].data[row - 1])
               })
             })
+            console.log(Math.floor(i / files.length * 100) + '%')
           })
           resSheet.forEach((sheet, sheetIndex) => {
             sheet.forEach((item, itemIndex) => {
@@ -139,11 +143,13 @@ export default {
             })
           })
           const buffer = xlsx.build(sheets)
-          writeFile('d:/Washing_Output/sheet.xlsx', buffer, function (err) {
+          const time = timeFormat(new Date()).split('').filter(item => !isNaN(parseInt(item))).join('')
+          writeFile(`${_this.OUTPUT_DIR}/LD-${time}.xlsx`, buffer, function (err) {
             if (err) {
               logger.error('写入失败: ', err)
             } else {
-              _this.$emit('showLoading', false)
+              _this.$emit('show-loading', false)
+              _this.$message.info(' 😀 数据处理完毕了！')
             }
           })
         }
@@ -151,9 +157,8 @@ export default {
     }
   },
   created () {
-    const WORK_DIR = 'D:/Washing_Output'
-    if (!existsSync(WORK_DIR)) {
-      mkdir(WORK_DIR, err => {
+    if (!existsSync(this.OUTPUT_DIR)) {
+      mkdir(this.OUTPUT_DIR, err => {
         if (err) {
           logger.error(err)
         }
