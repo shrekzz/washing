@@ -1,11 +1,12 @@
 import Vue from 'vue'
 import App from './App.vue'
 import { ipcRenderer } from 'electron'
-import { Modal } from 'ant-design-vue'
+import { Modal, message } from 'ant-design-vue'
 Vue.config.productionTip = false
 Vue.use(Modal)
 
 const callbackCache = []
+Vue.prototype.$message = message
 Vue.prototype.$ipcRenderer = {
   send: (msgType, msgData) => {
     ipcRenderer.send('message-from-renderer', {

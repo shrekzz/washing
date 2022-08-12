@@ -11,7 +11,7 @@
     </a-menu>
     <a-tabs v-if="activePanes.length !== 0" class="tabs" type="editable-card" v-model="tabs[0]" hide-add  size="large" @edit="onEdit">
       <a-tab-pane v-for="item in activePanes" :key="item.key" :tab="item.tab" @click="changeActived(item.key)">
-        <component :is="item.tabContent"  @show-loading="showLoading" @setConfig="setConfig" :ref="item.key" :config="configuration" />
+        <component :is="item.tabContent"  @show-loading="showLoading" @setConfig="setConfig" :ref="item.key" :config="configuration" :version="version" />
       </a-tab-pane>
     </a-tabs>
     <div class="home" v-else>
@@ -35,12 +35,20 @@
     </div>
     <a-drawer title="关于" placement="right" :closable="false" @close="close" :visible="visible" width="35%" >
       <div class="drawer">
-        <p>&nbsp;📧 xiezhi26@gmail.com</p>
+        <div class="logo">
+          <img src="./../build/home.png" />
+          <div class="description">
+            <span>washing</span>
+            <span>v{{ version }}</span>
+            <span>by: shrekz</span>
+          </div>
+        </div>
         <p>
         <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="24" data-view-component="true" class="octicon octicon-mark-github">
           <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
         </svg><a @click="openBrowser" >shrekzz</a>
         </p>
+        <p>&nbsp;📧 xiezhi26@gmail.com</p>
       </div>
     </a-drawer>
   </div>
@@ -51,6 +59,7 @@ import { shell } from 'electron'
 import { Tabs, Tooltip, Menu, Drawer } from 'ant-design-vue'
 import { writeFile, existsSync, readFile } from 'fs'
 import { logger } from './utils/log.js'
+import { version } from '../package.json'
 
 // 按需加载
 const LineData = () => import('./components/LineData.vue')
@@ -171,7 +180,8 @@ export default {
       ],
       activePanes: [],
       configuration: [],
-      visible: false
+      visible: false,
+      version: version
     }
   },
   created () {
@@ -235,6 +245,24 @@ body{
   -moz-user-select: text;
   -khtml-user-select: text;
   user-select: text;
+  .logo {
+    margin-bottom: 1em;
+    display: flex;
+    img {
+      width: 63px;
+      height: 63px;
+    }
+    .description {
+      :first-child {
+        color: #111;
+      }
+      margin-left: 10px;
+      width: 70px;
+      span {
+        display: inline-block;
+      }
+    }
+  }
 }
 .loading{
   margin: 0 auto;

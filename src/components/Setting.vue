@@ -27,7 +27,6 @@
 
 <script>
 import { Input, Button, Checkbox } from 'ant-design-vue'
-import { version } from '../../package.json'
 export default {
   components: {
     Input,
@@ -35,10 +34,9 @@ export default {
     Checkbox,
     CheckboxGroup: Checkbox.Group
   },
-  props: ['config'],
+  props: ['config', 'version'],
   data () {
     return {
-      version: version,
       tabs: ['AP数据处理', '产线数据处理', '自动输入FAQ', '自动生成框线'],
       configuration: this.config
     }

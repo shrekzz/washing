@@ -147,6 +147,7 @@ export default {
                 console.log(err)
               } else {
                 _this.$emit('show-loading', false)
+                _this.$message.info(' 😀 数据处理完毕了！')
               }
             }
           )

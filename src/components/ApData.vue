@@ -5,7 +5,7 @@
       <div>
         数据类型：
         <a-select :value="dataType" style="width: 120px;marginBottom: 10px;marginTop: 10px" @change="selectType">
-          <a-select-option value="AP">Ap</a-select-option>
+          <a-select-option value="AP">AP</a-select-option>
           <a-select-option value="Soundcheck">Soundcheck</a-select-option>
         </a-select>
       </div>
@@ -76,9 +76,11 @@ export default {
     dropEvent (e) {
       const files = e.dataTransfer.files
       if (files && files.length > 1) {
-        files.forEach(item => {
-          this.copyFiles(item.path)
-        })
+        for (const key in files) {
+          if (files[key].path) {
+            this.copyFiles(files[key].path)
+          }
+        }
       } else if (files.length === 1) {
         this.copyFiles(files[0].path)
       }
@@ -124,6 +126,7 @@ export default {
     /* 清空目录 */
     clearDir () {
       const dir = this.WORK_DIR
+      const _this = this
       readdir(dir, (err, files) => {
         if (err) {
           logger.error(err)
@@ -136,16 +139,17 @@ export default {
               }
             })
           })
-          alert('清空完成')
+          _this.$message.info(' 😁 清空完成！')
         } else {
-          alert('工作目录已空！')
+          _this.$message.info(' 🤕 工作目录已空！')
+          // alert('工作目录已空！')
         }
       })
       this.fileList = []
     },
     /* 打开目录 */
     openDir () {
-      shell.openPath('D:\\WASHING_WORK\\output')
+      shell.openPath(this.OUTPUT_DIR)
     },
     /* 打开文件 */
     openFile (filename) {
@@ -155,16 +159,16 @@ export default {
     /* AP数据处理 */
     ApDataHandle () {
       const _this = this
-      _this.$emit('show-loading', true)
       readdir(_this.WORK_DIR, (err, files) => {
         if (err) {
           logger.error(err)
         }
         if (files && files.length >= 1) {
+          _this.$emit('show-loading', true)
           files.forEach(file => {
             const path = `${_this.WORK_DIR}${file}`
-            this.$ipcRenderer.send('message-to-renderer', { type: 'ap2worker', data: path })
-            this.$ipcRenderer.on('read4ap', (sheetlist) => {
+            _this.$ipcRenderer.send('message-to-renderer', { type: 'ap2worker', data: path })
+            _this.$ipcRenderer.on('read4ap', (sheetlist) => {
               const resArr = _this.dataType === 'AP' ? handleSheetList(sheetlist) : handleSouncheck(sheetlist)
               const buffer = xlsx.build([{ name: 'ANC曲线', data: resArr }])
               const time = timeFormat(new Date()).split('').filter(item => !isNaN(parseInt(item))).join('')
@@ -181,10 +185,11 @@ export default {
                 _this.draw(outputFileName, resArr[0].length, resArr.length)
               }
               logger.info('处理 ' + outputFileName + ' 完成')
+              _this.$message.info(' 😀 数据处理完毕了！')
             })
           })
         } else {
-          alert('目录为空!')
+          _this.$message.info(' 🙄 工作目录为空！')
         }
       })
     },

@@ -40,11 +40,12 @@ import { mkdir, existsSync, readdir, writeFile } from 'fs'
 import { Button, Input, Checkbox, Radio } from 'ant-design-vue'
 import { shell } from 'electron'
 import xlsx from 'node-xlsx'
-import { reverseArray, createArray } from '../utils/utils'
+import { reverseArray, createArray, timeFormat } from '../utils/utils'
 import { logger } from '../utils/log'
 
 export default {
   name: 'LineData',
+  props: ['config'],
   data () {
     return {
       rows: [1],
@@ -54,7 +55,8 @@ export default {
       checkedType: 'row',
       sheetListNames: [],
       // 选中的表
-      checkedNames: []
+      checkedNames: [],
+      OUTPUT_DIR: this.config.workDir + 'output\\'
     }
   },
   components: {
@@ -101,7 +103,7 @@ export default {
     },
     /* 打开工作目录 */
     openWork () {
-      shell.openPath('d:/Washing_Output')
+      shell.openPath(this.OUTPUT_DIR)
     },
     /* 开始处理数据 */
     handleData (res) {
@@ -124,7 +126,6 @@ export default {
                 sheetlist[sheet].data = reverseArray(sheetlist[sheet].data)
               })
             }
-            console.log(file)
             _this.checkedNames.forEach((sheet, index) => {
               rowArr.forEach((row, rowIndex) => {
                 sheetlist[sheet].data[row - 1][0] = mac
@@ -142,11 +143,13 @@ export default {
             })
           })
           const buffer = xlsx.build(sheets)
-          writeFile('d:/Washing_Output/sheet.xlsx', buffer, function (err) {
+          const time = timeFormat(new Date()).split('').filter(item => !isNaN(parseInt(item))).join('')
+          writeFile(`${_this.OUTPUT_DIR}/LD-${time}.xlsx`, buffer, function (err) {
             if (err) {
               logger.error('写入失败: ', err)
             } else {
               _this.$emit('show-loading', false)
+              _this.$message.info(' 😀 数据处理完毕了！')
             }
           })
         }
@@ -154,9 +157,8 @@ export default {
     }
   },
   created () {
-    const WORK_DIR = 'D:/Washing_Output'
-    if (!existsSync(WORK_DIR)) {
-      mkdir(WORK_DIR, err => {
+    if (!existsSync(this.OUTPUT_DIR)) {
+      mkdir(this.OUTPUT_DIR, err => {
         if (err) {
           logger.error(err)
         }
