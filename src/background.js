@@ -134,7 +134,7 @@ app.on('ready', async () => {
 })
 
 //记录日志
-ipcMain.handle("message", async (event, arg) => {
+ipcMain.on("message", async (event, arg) => {
   //与渲染进程通信
   return new Promise((resolve, reject) => {
     logger.info(arg);

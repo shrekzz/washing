@@ -164,7 +164,7 @@ export default {
 }
 </script>
 
-<style lang="less">
+<style lang="less" >
 .limit {
   width: 80%;
   padding: 0 10px;

@@ -120,7 +120,7 @@ export default {
           files.forEach((file, i) => {
             const path = `${handlePath}/${file}`
             const sheetlist = xlsx.parse(path)
-            const mac = file.split('_')[2]
+            const mac = file.substring(0, file.lastIndexOf('.'))
             if (this.checkedType === 'column') {
               _this.checkedNames.forEach(sheet => {
                 sheetlist[sheet].data = reverseArray(sheetlist[sheet].data)

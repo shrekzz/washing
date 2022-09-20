@@ -7,6 +7,14 @@ const timeFormat = (time) => {
   const minutes = time.getMinutes() >= 10 ? time.getMinutes() : '0' + time.getMinutes()
   return year + '/' + month + '/' + date + ' ' + hours + ':' + minutes
 }
+
+const MinutesFormat = (time) => {
+  const hours = time.getHours()
+  const minutes = time.getMinutes() >= 10 ? time.getMinutes() : '0' + time.getMinutes()
+  const seconds = time.getSeconds() >= 10 ? time.getSeconds() : '0' + time.getSeconds()
+  const milliseconds = time.getMilliseconds() >= 10 ? (time.getMilliseconds() < 100 ? '0' + time.getMilliseconds() : time.getMilliseconds()) : '00' + time.getMilliseconds()
+  return hours + ':' + minutes + ':' + seconds + '.' + milliseconds
+}
 // 文件大小格式化
 const sizeFormat = (size) => {
   return (Math.floor(size / 1024) || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,') + ' KB'
@@ -136,4 +144,4 @@ const scale = (col, row) => {
   return 'A1:' + res + row
 }
 
-export { timeFormat, sizeFormat, handleSheetList, handleSouncheck, reverseArray, createArray, BESConfig, scale }
+export { timeFormat, sizeFormat, handleSheetList, handleSouncheck, reverseArray, createArray, BESConfig, scale, MinutesFormat }

@@ -67,6 +67,7 @@ const ApData = () => import('./components/ApData.vue')
 const AutoFaq = () => import('./components/AutoFaq.vue')
 const Setting = () => import('./components/Setting.vue')
 const LimitLine = () => import('./components/LimitLine.vue')
+const SerialPort = () => import('./components/SerialPort.vue')
 
 export default {
   name: 'App',
@@ -81,7 +82,8 @@ export default {
     AMenu: Menu,
     AMenuItem: Menu.Item,
     LimitLine,
-    ADrawer: Drawer
+    ADrawer: Drawer,
+    SerialPort
   },
   methods: {
     callback (key) {
@@ -176,6 +178,12 @@ export default {
           tab: '自动生成框线',
           menuContent: '框线',
           tabContent: 'limit-line'
+        },
+        {
+          key: 'serial',
+          tab: '串口工具',
+          menuContent: '串口',
+          tabContent: 'serial-port'
         }
       ],
       activePanes: [],

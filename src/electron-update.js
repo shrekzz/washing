@@ -28,7 +28,6 @@ export function updateHandle(window, autoUpdateFlag) {
       cmd: "error",
       message: error,
     });
-    logger.info(error)
     logger.error("监听系统升级事件失败");
   });
 
@@ -38,8 +37,6 @@ export function updateHandle(window, autoUpdateFlag) {
       cmd: "checking-for-update",
       message: message,
     });
-    logger.info("监听系统升级事件：")
-    logger.info(message)
     logger.info("开始监听系统升级事件");
   });
   //监听没有可用更新事件
@@ -48,8 +45,6 @@ export function updateHandle(window, autoUpdateFlag) {
       cmd: "update-not-available",
       message: message,
     });
-    logger.info("没有新版本： ")
-    logger.info(message)
     logger.info("没有发现新版本");
   });
   //监听发现可用更新事件

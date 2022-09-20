@@ -60,8 +60,34 @@ chainWebpack: config => {
 
 - 3.优化掉没用的 lodash
 
+### 实现版本更新
+
+使用electron-updater
+vue.config.js配置
+```
+buildOption: {
+  publish: ['github']
+  // 或
+  publish: [{
+    provider: 'generic',
+    url: ''
+  }]
+}
+```
+
+electron-update.js 监听更新事件并发送日志给渲染进程
+
+
 参考：
+
+electron-updater：
+
+https://blog.csdn.net/zxl_start/article/details/125202259
+
+ant-design-vue 优化：
 
 https://www.jianshu.com/p/cd7fd063e07d 
     
+打包优化：
+
 https://juejin.cn/post/6913531130180272142/#heading-2
