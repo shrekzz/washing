@@ -44,9 +44,7 @@ export default {
   },
   methods: {
     getSerialPort() {
-      // console.log(SerialPort)
       SerialPort.list().then((ports) => {
-        console.log(ports) // 打印串口列表
         this.ports = ports
         this.portPath = ports[0].path
       }).catch((err) => {

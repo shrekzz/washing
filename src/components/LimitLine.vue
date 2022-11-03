@@ -84,8 +84,7 @@ export default {
   props: ['config'],
   methods: {
     getFilePath(e) {
-      const path = e.target.files[0].path
-      this.filePath = path
+      this.filePath = e.target.files[0].path ? e.target.files[0].path : this.filePath
     },
     checkLimit() {
       if (this.low === '' || this.up === '') {
@@ -176,6 +175,13 @@ export default {
   input[type='number'] {
     -moz-appearance: textfield;
   }
+  .question {
+    margin-left: 5px;
+    cursor: pointer;
+    :hover {
+      color: #1890ff;
+    }
+  }
   .tips {
     margin: 10px 0;
     font-size: 20px;
@@ -187,7 +193,7 @@ export default {
       position: absolute;
       top: 0;
       left: 0;
-      width: 116px;
+      width: 88px;
       height: 32px;
       cursor: pointer;
     }

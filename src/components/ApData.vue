@@ -165,14 +165,15 @@ export default {
         }
         if (files && files.length >= 1) {
           _this.$emit('show-loading', true)
-          files.forEach(file => {
-            const path = `${_this.WORK_DIR}${file}`
-            _this.$ipcRenderer.send('message-to-renderer', { type: 'ap2worker', data: path })
-            _this.$ipcRenderer.on('read4ap', (sheetlist) => {
-              const resArr = _this.dataType === 'AP' ? handleSheetList(sheetlist) : handleSouncheck(sheetlist)
+          const path = `${_this.WORK_DIR}`
+          const filenames = files.map(file => path + file)
+          _this.$ipcRenderer.send('message-to-renderer', { type: 'ap2worker', data: filenames })
+          _this.$ipcRenderer.on('read4ap', sheetList => {
+            sheetList.forEach((sheet, index) => {
+              const resArr = _this.dataType === 'AP' ? handleSheetList(sheet) : handleSouncheck(sheet)
               const buffer = xlsx.build([{ name: 'ANC曲线', data: resArr }])
               const time = timeFormat(new Date()).split('').filter(item => !isNaN(parseInt(item))).join('')
-              const outputFileName = path.replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlsx')
+              const outputFileName = filenames[index].replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlsx')
               writeFile(outputFileName, buffer, err => {
                 if (err) {
                   logger.error(err)
@@ -185,9 +186,32 @@ export default {
                 _this.draw(outputFileName, resArr[0].length, resArr.length)
               }
               logger.info('处理 ' + outputFileName + ' 完成')
-              _this.$message.info(' 😀 数据处理完毕了！')
             })
           })
+          _this.$message.info(' 😀 数据处理完毕了！')
+          // files.forEach(file => {
+          //   const path = `${_this.WORK_DIR}${file}`
+          //   _this.$ipcRenderer.send('message-to-renderer', { type: 'ap2worker', data: path })
+          //   _this.$ipcRenderer.on('read4ap', (sheetlist) => {
+          //     const resArr = _this.dataType === 'AP' ? handleSheetList(sheetlist) : handleSouncheck(sheetlist)
+          //     const buffer = xlsx.build([{ name: 'ANC曲线', data: resArr }])
+          //     const time = timeFormat(new Date()).split('').filter(item => !isNaN(parseInt(item))).join('')
+          //     const outputFileName = path.replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlsx')
+          //     writeFile(outputFileName, buffer, err => {
+          //       if (err) {
+          //         logger.error(err)
+          //       } else {
+          //         _this.$emit('show-loading', false)
+          //       }
+          //     })
+          //     /* 画图方法 */
+          //     if (_this.isDraw) {
+          //       _this.draw(outputFileName, resArr[0].length, resArr.length)
+          //     }
+          //     logger.info('处理 ' + outputFileName + ' 完成')
+          //     _this.$message.info(' 😀 数据处理完毕了！')
+          //   })
+          // })
         } else {
           _this.$message.info(' 🙄 工作目录为空！')
         }
