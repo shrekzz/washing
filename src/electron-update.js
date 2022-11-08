@@ -16,7 +16,7 @@ export function updateHandle(window, autoUpdateFlag) {
     updateAva: "检测到新版本，正在下载……",
     updateNotAva: "现在使用的就是最新版本，不用更新",
   };
-  // autoUpdater.setFeedURL(feedUrl);
+  autoUpdater.setFeedURL('http://13.114.101.215:9055/');
   // autoUpdater.checkForUpdatesAndNotify()
   if(autoUpdateFlag) {
     autoUpdater.checkForUpdates()
@@ -29,6 +29,7 @@ export function updateHandle(window, autoUpdateFlag) {
       message: error,
     });
     logger.error("监听系统升级事件失败");
+    logger.error(error)
   });
 
   //监听开始检测更新事件
@@ -66,6 +67,7 @@ export function updateHandle(window, autoUpdateFlag) {
       message: progressObj,
     });
     logger.info("更新下载进度...");
+    logger.info(progressObj)
   });
 
   autoUpdater.on("close", (event) => {
