@@ -54,31 +54,21 @@ const handleSheetList = sheetlist => {
 // soundcheck
 const handleSouncheck = sheetlist => {
   const start = []
+  console.log(sheetlist)
   sheetlist.forEach((item, index) => {
-    // if (index === 1) {
-    //   item.data[2][0] = item.name
-    //   for (let j = 0; j < item.data.length; j++) {
-    //     start.push(item.data[j].slice(1, 3))
-    //   }
-    // }
-    // if (index > 1) {
-    //   item.data[2][0] = item.name
-    //   for (let i = 0; i < item.data.length; i++) {
-    //     start[i].push(item.data[i][2])
-    //   }
-    // }
-    item.data[2][0] = item.name
     if (index === 1) {
-      start.push(item.data[1])
-      start.push(item.data[2])
+      item.data[0][2] = item.name
+      for (let j = 0; j < item.data.length; j++) {
+        start.push(item.data[j].slice(1, 3))
+      }
     }
     if (index > 1) {
-      start.push(item.data[2])
+      item.data[0][2] = item.name
+      for (let i = 0; i < item.data.length; i++) {
+        start[i].push(item.data[i][2])
+      }
     }
   })
-  // return reverseArray(start.map(item => {
-  //   return [item[0]].concat(item.slice(1).reverse())
-  // }))
   return start.map(item => {
     return [item[0]].concat(item.slice(1).reverse())
   })

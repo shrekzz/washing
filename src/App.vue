@@ -64,9 +64,7 @@ import { version } from '../package.json'
 // 按需加载
 const LineData = () => import('./components/LineData.vue')
 const ApData = () => import('./components/ApData.vue')
-const AutoFaq = () => import('./components/AutoFaq.vue')
 const Setting = () => import('./components/Setting.vue')
-const LimitLine = () => import('./components/LimitLine.vue')
 const SerialPort = () => import('./components/SerialPort.vue')
 
 export default {
@@ -76,12 +74,10 @@ export default {
     ATabs: Tabs,
     ATabPane: Tabs.TabPane,
     ApData,
-    AutoFaq,
     Setting,
     ATooltip: Tooltip,
     AMenu: Menu,
     AMenuItem: Menu.Item,
-    LimitLine,
     ADrawer: Drawer,
     SerialPort
   },
@@ -166,18 +162,6 @@ export default {
           tab: '产线数据处理',
           menuContent: '产线',
           tabContent: 'line-data'
-        },
-        {
-          key: 'auto',
-          tab: '自动输入FAQ',
-          menuContent: 'Auto',
-          tabContent: 'auto-faq'
-        },
-        {
-          key: 'limit',
-          tab: '自动生成框线',
-          menuContent: '框线',
-          tabContent: 'limit-line'
         },
         {
           key: 'serial',

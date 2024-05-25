@@ -5,13 +5,14 @@
     <a-select class="serial-select" placeholder="选择串口" v-model="portPath">
       <a-select-option v-for="port in ports" :value="port.path" :key="port.pnpId">{{ port.path }}</a-select-option>
     </a-select>
+    <Input class="baud-rate" v-model="baudRate" :disabled="!portStatus" type="number"/>
     <Button class="trigger-btn" @click="openSerialPort" :disabled="portPath=== '无端口'" :type="portStatus ? 'primary' : 'danger'"> {{ portStatus ? '打开串口' : '关闭串口' }} </Button>
     <div class="port-message-box">
-      <div class="message-content">
+      <div class="message-content" ref="messageContent">
         <span v-for="(item, index) in message" :key="index" class="message">{{ `[${item.time}] ${item.type === 'send' ? '👉发：' : '👈收：' } ${item.content}` }} </span>
       </div>
       <div class="command-box">
-        <textarea class="command-input" v-model="command" ></textarea>
+        <textarea class="command-input" ref="commandInput" v-model="command" ></textarea>
         <Button class="send-btn" @click="sendCommand(command)">发送</Button>
       </div>
     </div>
@@ -21,7 +22,7 @@
   </div>
 </template>
 <script>
-import { Button, Select, Icon } from 'ant-design-vue'
+import { Button, Select, Icon, Input } from 'ant-design-vue'
 import { SerialPort } from 'serialport'
 import { MinutesFormat } from '../utils/utils.js'
 
@@ -31,7 +32,8 @@ export default {
     Button,
     ASelect: Select,
     ASelectOption: Select.Option,
-    Icon
+    Icon,
+    Input
   },
   data() {
     return {
@@ -39,7 +41,8 @@ export default {
       portPath: '无端口',
       portStatus: true,
       message: [],
-      command: ''
+      command: '',
+      baudRate: 921600
     }
   },
   methods: {
@@ -52,12 +55,20 @@ export default {
         console.log(err)
       })
     },
+    scrollToBottom() {
+      this.$nextTick(() => {
+        const messageContent = this.$refs.messageContent
+        if (messageContent) {
+          messageContent.scrollTop = messageContent.scrollHeight
+        }
+      })
+    },
     openSerialPort () {
       this.portStatus = !this.portStatus
       if (!this.portStatus) {
         this.$serialPort = new SerialPort({
           path: this.portPath,
-          baudRate: 921600,
+          baudRate: parseInt(this.baudRate),
           autoOpen: false
         })
         this.$serialPort.open(err => {
@@ -66,11 +77,15 @@ export default {
             this.$message.error('端口不存在或被占用')
           } else {
             this.$serialPort.on('data', data => {
+              // if (data.includes('action')) {
+              console.log(data.toString())
               this.message.push({
                 type: 'receive',
                 time: MinutesFormat(new Date()),
                 content: data
               })
+              // }
+              this.scrollToBottom()
             })
             console.log('open ok')
           }
@@ -99,14 +114,34 @@ export default {
           })
         }
       })
+    },
+    addCtrlAListener(textarea) {
+      textarea.addEventListener('keydown', event => {
+        if (event.ctrlKey && event.key === 'a') {
+          event.preventDefault() // 阻止默认行为
+          textarea.select() // 全选当前文本框内的文本
+        }
+      })
     }
   },
   mounted() {
     this.getSerialPort()
+    this.addCtrlAListener(this.$refs.commandInput)
+  },
+  beforeDestroy() {
+    if (this.$refs.commandInput) {
+      this.$refs.commandInput.removeEventListener('keydown', this.preventCtrlA)
+    }
+    // 移除其他输入框的事件监听器
   }
 }
 </script>
 <style lang='less' socped>
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+
 .serial {
   width: 80%;
   padding: 0 10px;
@@ -116,12 +151,15 @@ export default {
     font-size: 20px;
     display: block;
   }
+  .baud-rate {
+    width: 80px;
+  }
   .refresh-btn {
     border-top-right-radius: 0!important;
     border-bottom-right-radius: 0!important;
     border-bottom-left-radius: 0!important;
   }
-  .trigger-btn{
+  .trigger-btn {
     border-top-left-radius: 0!important;
     border-bottom-right-radius: 0!important;
     border-bottom-left-radius: 0!important;
