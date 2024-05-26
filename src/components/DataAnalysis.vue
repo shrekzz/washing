@@ -46,7 +46,7 @@
       <span class="offsetTips">{{ offsetTips }}</span>
     </div>
     <div class="btn-group">
-      <Button class="start" type="" @click="startWork" :disabled="startFlag"
+      <Button class="start" type="" @click="startWork"
         >开始</Button
       >
       <Button class="open" type="primary" @click="openWork"
@@ -59,9 +59,10 @@
 <script>
 import { Input, Button } from 'ant-design-vue'
 import { shell } from 'electron'
-import LimitFactory from './../utils/LimitFactory'
-import xlsx from 'node-xlsx'
+import { updateDataWithDeviations } from './../utils/DataAnalysis.js'
+// import LimitFactory from '../utils/LimitFactory'
 import { writeFile } from 'fs'
+import xlsx from 'node-xlsx'
 
 export default {
   name: 'LimitLine',
@@ -117,41 +118,68 @@ export default {
     },
     startWork() {
       const _this = this
-      if (this.rangeTips === '✔' && this.offsetTips === '✔') {
-        this.$emit('show-loading', true)
-        this.$ipcRenderer.send('message-to-renderer', {
-          type: 'limit2worker',
-          data: this.filePath
-        })
-        this.$ipcRenderer.on('read4limit', arg => {
-          const LF = new LimitFactory(
-            arg[0].data,
-            [this.low, this.up],
-            [this.lowFreq, this.upFreq]
-          )
-          const res = LF.getResult()
-          const buffer = xlsx.build([
-            {
-              name: 'ANC',
-              data: res
+      this.$emit('show-loading', true)
+      this.$ipcRenderer.send('message-to-renderer', {
+        type: 'limit2worker',
+        data: this.filePath
+      })
+      this.$ipcRenderer.on('read4limit', arg => {
+        console.log(updateDataWithDeviations(arg[0].data))
+        const buffer = xlsx.build([
+          {
+            name: 'Ana',
+            data: updateDataWithDeviations(arg[0].data)
+          }
+        ])
+        writeFile(
+          `${
+            this.config.workDir
+          }/output/shrekz${new Date().getMinutes()}${new Date().getSeconds()}.xlsx`,
+          buffer,
+          err => {
+            if (err) {
+              console.log(err)
+            } else {
+              _this.$emit('show-loading', false)
+              _this.$message.info(' 😀 数据处理完毕了！')
             }
-          ])
-          writeFile(
-            `${
-              this.config.workDir
-            }/output/shrekz${new Date().getMinutes()}${new Date().getSeconds()}.xlsx`,
-            buffer,
-            err => {
-              if (err) {
-                console.log(err)
-              } else {
-                _this.$emit('show-loading', false)
-                _this.$message.info(' 😀 数据处理完毕了！')
-              }
-            }
-          )
-        })
-      }
+          }
+        )
+      })
+      // if (this.rangeTips === '✔' && this.offsetTips === '✔') {
+      //   this.$emit('show-loading', true)
+      //   this.$ipcRenderer.send('message-to-renderer', {
+      //     type: 'limit2worker',
+      //     data: this.filePath
+      //   })
+      //   this.$ipcRenderer.on('read4limit', arg => {
+      //     const LF = new LimitFactory(
+      //       arg[0].data,
+      //       [this.low, this.up],
+      //       [this.lowFreq, this.upFreq]
+      //     )
+      //     const res = LF.getResult()
+      //     const buffer = xlsx.build([
+      //       {
+      //         name: 'ANC',
+      //         data: res
+      //       }
+      //     ])
+      //     writeFile(
+      //       `${
+      //         this.config.workDir
+      //       }/output/shrekz${new Date().getMinutes()}${new Date().getSeconds()}.xlsx`,
+      //       buffer,
+      //       err => {
+      //         if (err) {
+      //           console.log(err)
+      //         } else {
+      //           _this.$emit('show-loading', false)
+      //           _this.$message.info(' 😀 数据处理完毕了！')
+      //         }
+      //       }
+      //     )
+      // })
     }
   },
   computed: {

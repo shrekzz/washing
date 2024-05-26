@@ -64,6 +64,7 @@ import { version } from '../package.json'
 // 按需加载
 const LineData = () => import('./components/LineData.vue')
 const ApData = () => import('./components/ApData.vue')
+const DataAnalysis = () => import('./components/DataAnalysis.vue')
 const Setting = () => import('./components/Setting.vue')
 const SerialPort = () => import('./components/SerialPort.vue')
 
@@ -79,6 +80,7 @@ export default {
     AMenu: Menu,
     AMenuItem: Menu.Item,
     ADrawer: Drawer,
+    DataAnalysis,
     SerialPort
   },
   methods: {
@@ -164,6 +166,12 @@ export default {
           tabContent: 'line-data'
         },
         {
+          key: 'Anal',
+          tab: '数据分析',
+          menuContent: '分析',
+          tabContent: 'data-analysis'
+        },
+        {
           key: 'serial',
           tab: '串口工具',
           menuContent: '串口',
@@ -194,7 +202,7 @@ export default {
               }
             }
           }
-          this.tabs = [this.activePanes[0].key]
+          this.tabs = [this.activePanes.length !== 0 ? this.activePanes[0].key : '']
         }
       })
     }

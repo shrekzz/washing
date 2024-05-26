@@ -47,7 +47,7 @@ async function createWindow () {
   }})
   
   const workerWindow = new BrowserWindow({
-    show: false,
+    show: true,
     webPreferences: { 
       nodeIntegration: true,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
