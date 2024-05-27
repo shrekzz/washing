@@ -2,13 +2,6 @@
   <div class="ap-data">
     <div class="title">🙎‍♂️拖入文件进行处理 <Icon class="refresh" type="reload" @click="readDir"/></div>
     <div class="selector">
-      <div>
-        数据类型：
-        <a-select :value="dataType" style="width: 120px;marginBottom: 10px;marginTop: 10px" @change="selectType">
-          <a-select-option value="AP">AP</a-select-option>
-          <a-select-option value="Soundcheck">Soundcheck</a-select-option>
-        </a-select>
-      </div>
       <Checkbox :checked="isDraw" @change="isDraw = !isDraw">生成图表</Checkbox>
     </div>
     <div class="fileListBox" @drop="dropEvent($event)" @dragover.prevent="" >
@@ -63,7 +56,6 @@ export default {
       WORK: this.config.workDir,
       WORK_DIR: this.config.workDir + 'input\\',
       OUTPUT_DIR: this.config.workDir + 'output\\',
-      dataType: 'AP',
       isDraw: false
     }
   },
@@ -170,7 +162,7 @@ export default {
           _this.$ipcRenderer.send('message-to-renderer', { type: 'ap2worker', data: filenames })
           _this.$ipcRenderer.on('read4ap', sheetList => {
             sheetList.forEach((sheet, index) => {
-              const resArr = _this.dataType === 'AP' ? handleSheetList(sheet) : handleSouncheck(sheet)
+              const resArr = sheet[0].name === 'Display' ? handleSouncheck(sheet) : handleSheetList(sheet)
               const buffer = xlsx.build([{ name: 'ANC曲线', data: resArr }])
               const time = timeFormat(new Date()).split('').filter(item => !isNaN(parseInt(item))).join('')
               const outputFileName = filenames[index].replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlsx')
@@ -189,29 +181,6 @@ export default {
             })
           })
           _this.$message.info(' 😀 数据处理完毕了！')
-          // files.forEach(file => {
-          //   const path = `${_this.WORK_DIR}${file}`
-          //   _this.$ipcRenderer.send('message-to-renderer', { type: 'ap2worker', data: path })
-          //   _this.$ipcRenderer.on('read4ap', (sheetlist) => {
-          //     const resArr = _this.dataType === 'AP' ? handleSheetList(sheetlist) : handleSouncheck(sheetlist)
-          //     const buffer = xlsx.build([{ name: 'ANC曲线', data: resArr }])
-          //     const time = timeFormat(new Date()).split('').filter(item => !isNaN(parseInt(item))).join('')
-          //     const outputFileName = path.replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlsx')
-          //     writeFile(outputFileName, buffer, err => {
-          //       if (err) {
-          //         logger.error(err)
-          //       } else {
-          //         _this.$emit('show-loading', false)
-          //       }
-          //     })
-          //     /* 画图方法 */
-          //     if (_this.isDraw) {
-          //       _this.draw(outputFileName, resArr[0].length, resArr.length)
-          //     }
-          //     logger.info('处理 ' + outputFileName + ' 完成')
-          //     _this.$message.info(' 😀 数据处理完毕了！')
-          //   })
-          // })
         } else {
           _this.$message.info(' 🙄 工作目录为空！')
         }
