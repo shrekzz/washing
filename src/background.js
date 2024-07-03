@@ -38,6 +38,11 @@ async function createWindow () {
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
     }
   })
+
+  ipcMain.handle('get-userdata-path', async () => {
+    return app.getPath('userData')
+  })
+
   readFile('./config.json', (err, data) => {
     if (err) {
       logger.error(err)

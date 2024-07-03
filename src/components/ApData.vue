@@ -34,8 +34,8 @@
 <script>
 import { Button, Icon, Select, Checkbox } from 'ant-design-vue'
 import { basename } from 'path'
-import { copyFile, existsSync, mkdir, readdir, stat, unlink, writeFile } from 'fs'
-import { timeFormat, sizeFormat, handleSheetList, handleSouncheck, scale } from '../utils/utils'
+import { copyFile, existsSync, mkdir, readdir, stat, unlink, writeFile, watch } from 'fs'
+import { timeFormat, sizeFormat, handleSheetList, handleSouncheck, handleMegasig, scale } from '../utils/utils'
 import { shell } from 'electron'
 import xlsx from 'node-xlsx'
 import { exec } from 'child_process'
@@ -153,7 +153,12 @@ export default {
       const _this = this
       readdir(_this.WORK_DIR, (err, files) => {
         if (err) {
+          _this.$message.info(err)
           logger.error(err)
+        }
+        if (files.some(file => file.startsWith('~$'))) {
+          _this.$message.warning(' 😨 存在临时文件，退出处理。')
+          return // 找到以 ~$ 开头的文件，退出函数
         }
         if (files && files.length >= 1) {
           _this.$emit('show-loading', true)
@@ -162,8 +167,16 @@ export default {
           _this.$ipcRenderer.send('message-to-renderer', { type: 'ap2worker', data: filenames })
           _this.$ipcRenderer.on('read4ap', sheetList => {
             sheetList.forEach((sheet, index) => {
-              const resArr = sheet[0].name === 'Display' ? handleSouncheck(sheet) : handleSheetList(sheet)
-              const buffer = xlsx.build([{ name: 'ANC曲线', data: resArr }])
+              // const resArr = sheet[0].name === 'Display' ? handleSouncheck(sheet) : handleSheetList(sheet)
+              let resArr = []
+              if (sheet[0].name === 'Display') {
+                resArr = handleSouncheck(sheet)
+              } else if (sheet[0].name.includes('_ALL')) {
+                resArr = handleMegasig(sheet)
+              } else {
+                resArr = handleSheetList(sheet)
+              }
+              const buffer = xlsx.build(resArr)
               const time = timeFormat(new Date()).split('').filter(item => !isNaN(parseInt(item))).join('')
               const outputFileName = filenames[index].replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlsx')
               writeFile(outputFileName, buffer, err => {
@@ -225,6 +238,16 @@ export default {
   },
   mounted () {
     this.readDir()
+    this.watcher = watch(this.WORK_DIR, eventType => {
+      if (eventType === 'change' || eventType === 'unlink') {
+        this.readDir()
+      }
+    })
+  },
+  beforeDestroy () {
+    if (this.watcher) {
+      this.watcher.close()
+    }
   }
 }
 </script>

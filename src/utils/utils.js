@@ -48,13 +48,12 @@ const handleSheetList = sheetlist => {
       }
     }
   }
-  return start
+  return [{ name: 'ANC曲线', data: start }]
 }
 
 // soundcheck
 const handleSouncheck = sheetlist => {
   const start = []
-  console.log(sheetlist)
   sheetlist.forEach((item, index) => {
     if (index === 1) {
       item.data[0][2] = item.name
@@ -69,9 +68,30 @@ const handleSouncheck = sheetlist => {
       }
     }
   })
-  return start.map(item => {
+  start.map(item => {
     return [item[0]].concat(item.slice(1).reverse())
   })
+  return [{ name: 'ANC曲线', data: start }]
+}
+const handleMegasig = sheetlist => {
+  const start = []
+  const indices = sheetlist[0].data[0].reduce((acc, current, index) => {
+    if (current === 'Result Info:') {
+      acc.push(index)
+    }
+    return acc
+  }, [])
+  for (let i = 0; i < indices.length; i++) {
+    const temp = []
+    for (let j = 0; j < sheetlist[0].data.length; j++) {
+      temp.push(sheetlist[0].data[j].slice(indices[i], indices[i + 1]))
+    }
+    start.push({
+      name: temp[3][0].replace(/[\\:/?*[\]]/g, ''),
+      data: temp
+    })
+  }
+  return start
 }
 // 生成二维数组
 const createArray = (x, y) => {
@@ -134,4 +154,4 @@ const scale = (col, row) => {
   return 'A1:' + res + row
 }
 
-export { timeFormat, sizeFormat, handleSheetList, handleSouncheck, reverseArray, createArray, BESConfig, scale, MinutesFormat }
+export { timeFormat, sizeFormat, handleSheetList, handleSouncheck, handleMegasig, reverseArray, createArray, BESConfig, scale, MinutesFormat }

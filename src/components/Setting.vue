@@ -37,7 +37,7 @@ export default {
   props: ['config', 'version'],
   data () {
     return {
-      tabs: ['AP数据处理', '产线数据处理', '串口工具'],
+      tabs: ['AP数据处理', '产线数据处理', '数据分析', '串口工具'],
       configuration: this.config
     }
   },

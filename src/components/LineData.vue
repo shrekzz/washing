@@ -116,6 +116,10 @@ export default {
       // 二维数组，x： 第 x 个表、 y： 第 y 行
       const resSheet = createArray(this.checkedNames.length, rowArr.length)
       readdir(handlePath, (err, files) => {
+        if (files.some(file => file.startsWith('~$'))) {
+          _this.$message.warning(' 😨 存在临时文件，退出处理。')
+          return // 找到以 ~$ 开头的文件，退出函数
+        }
         if (!err) {
           files.forEach((file, i) => {
             const path = `${handlePath}/${file}`
@@ -128,12 +132,19 @@ export default {
             }
             _this.checkedNames.forEach((sheet, index) => {
               rowArr.forEach((row, rowIndex) => {
-                sheetlist[sheet].data[row - 1][0] = mac
-                resSheet[index][rowIndex].push(sheetlist[sheet].data[row - 1])
+                if (sheetlist[sheet].data[row - 1]) {
+                  if (sheetlist[sheet].data[row - 1][0].length === 0) {
+                    sheetlist[sheet].data[row - 1][0] = mac
+                  } else {
+                    sheetlist[sheet].data[row - 1].unshift(mac)
+                  }
+                  resSheet[index][rowIndex].push(sheetlist[sheet].data[row - 1])
+                }
               })
             })
             console.log(Math.floor(i / files.length * 100) + '%')
           })
+          console.log(resSheet)
           resSheet.forEach((sheet, sheetIndex) => {
             sheet.forEach((item, itemIndex) => {
               sheets.push({

@@ -1,6 +1,6 @@
 {
   "name": "washing",
-  "version": "0.1.12",
+  "version": "0.1.14",
   "author": "shrekz",
   "private": true,
   "scripts": {
@@ -25,7 +25,9 @@
     "node-cmd": "^5.0.0",
     "node-xlsx": "^0.17.2",
     "serialport": "^10.4.0",
-    "vue": "^2.6.11",
+    "vue": "^2.6.11"
+  },
+  "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
