@@ -15,7 +15,7 @@
       {{ filePath }}
     </div>
     <div>例：文件格式如下：</div>
-    <img src="./../../build/limit_eg.png" />
+    <img style="width: 400px;" src="./../../build/limit_eg.png" />
     <div class="btn-group">
       <Button class="start" type="" @click="startWork"
         >开始</Button
@@ -62,7 +62,6 @@ export default {
         data: this.filePath
       })
       this.$ipcRenderer.on('read4limit', arg => {
-        console.log(updateDataWithDeviations(arg[0].data))
         const buffer = xlsx.build([
           {
             name: 'Ana',
