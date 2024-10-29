@@ -1,28 +1,28 @@
 
-// const updateDataWithDeviations = (curvesData) => {
-//   // 函数用于计算每条曲线的最大值和最小值的平均值
-//   const calculateAverageExtremes = (curves) => {
-//     return curves.map(curve => {
-//       const max = Math.max(...curve.slice(1))
-//       const min = Math.min(...curve.slice(1))
-//       return (max + min) / 2
-//     })
-//   }
+const updateDataWithDeviations = (curvesData) => {
+  // 函数用于计算每条曲线的最大值和最小值的平均值
+  const calculateAverageExtremes = (curves) => {
+    return curves.map(curve => {
+      const max = Math.max(...curve.slice(1))
+      const min = Math.min(...curve.slice(1))
+      return (max + min) / 2
+    })
+  }
 
-//   // 计算每条曲线的极值平均值
-//   const averageExtremesPerCurve = calculateAverageExtremes(curvesData.slice(1))
-//   console.log(averageExtremesPerCurve)
-//   // 创建一个新的数据数组，避免直接修改原始数据
-//   // 更新数据数组，计算每条曲线的每个点与极值平均值的差
-//   const newData = curvesData.map((curve, index) => {
-//     if (index === 0) return curve // 保留标题行不变
-//     return [
-//       curve[0], // 保留曲线的标识符
-//       ...curve.slice(1).map(value => value - averageExtremesPerCurve[index - 1]) // 计算偏差
-//     ]
-//   })
-//   return newData
-// }
+  // 计算每条曲线的极值平均值
+  const averageExtremesPerCurve = calculateAverageExtremes(curvesData.slice(1))
+  console.log(averageExtremesPerCurve)
+  // 创建一个新的数据数组，避免直接修改原始数据
+  // 更新数据数组，计算每条曲线的每个点与极值平均值的差
+  const newData = curvesData.map((curve, index) => {
+    if (index === 0) return curve // 保留标题行不变
+    return [
+      curve[0], // 保留曲线的标识符
+      ...curve.slice(1).map(value => value - averageExtremesPerCurve[index - 1]) // 计算偏差
+    ]
+  })
+  return newData
+}
 // 平均值
 const calculateColumnAverages = array2D => {
   const columns = array2D[0].length
@@ -131,7 +131,7 @@ const calculateUSLLSLDifferences = (USL, LSL) => {
   return { differenceArray, negativeDifferenceArray }
 }
 
-const updateDataWithDeviations = (curvesData) => {
+const updateDataWithCPK = (curvesData) => {
   console.log(curvesData)
   const USL = curvesData[1].slice(1)
   const LSL = curvesData[2].slice(1)
@@ -146,25 +146,30 @@ const updateDataWithDeviations = (curvesData) => {
       return row.slice(startIndex, endIndex + 1)
     })
   }
-  console.log(startIdx)
-  console.log(endIdx)
 
   const data = extractSubArray2D(curvesData.slice(3), startIdx, endIdx)
   const AVG = calculateColumnAverages(data)
   const MAX = findColumnMaxima(data)
   const MIN = findColumnMinima(data)
-  console.log(MAX, MIN)
   const STD = calculateColumnSTD(data, AVG)
   const { differenceArray, negativeDifferenceArray } = calculateUSLLSLDifferences(USL, LSL)
-  console.log(differenceArray)
-  console.log(negativeDifferenceArray)
   const Ca = calculateCa(USL, LSL, AVG)
   const Cp = calculateCp(USL, LSL, STD)
   const Cpk = calculateCPK(Ca, Cp)
-  console.log(STD)
-  console.log(Cpk)
-  console.log(Ca)
-  console.log(Cp)
+  const res = [
+    ...curvesData,
+    [],
+    ['AVG', ...AVG],
+    ['MAX', ...MAX],
+    ['MIN', ...MIN],
+    ['STD', ...STD],
+    ['+Tol', ...differenceArray],
+    ['-Tol', ...negativeDifferenceArray],
+    ['Ca', ...Ca],
+    ['Cp', ...Cp],
+    ['Cpk', ...Cpk]
+  ]
+  return res
 }
 
-export { updateDataWithDeviations }
+export { updateDataWithDeviations, updateDataWithCPK }

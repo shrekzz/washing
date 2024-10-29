@@ -1,6 +1,6 @@
 <template>
   <div class="limit">
-    <span class="tips">💁‍♂️选择待处理文件</span>
+    <span class="tips">💁‍♂️选择待处理文件 (CPK计算)</span>
     <div class="getFileBox">
       <Button class="chooseBtn">选择文件</Button>
       <label class="getFilePath">
@@ -14,7 +14,11 @@
       </label>
       {{ filePath }}
     </div>
-    <div>例：文件格式如下：</div>
+    <a-select style="width: 140px;" v-model="type">
+      <a-select-option value="CPK"  key="CPK">CPK计算</a-select-option>
+      <a-select-option value="Scatter" key="Scatter">曲线离散度（减均值）</a-select-option>
+    </a-select>
+    <div style="margin: 10px 5px 10px 10px;">⚠计算CPK文件格式如下,需要上下限：</div>
     <img style="width: 400px;" src="./../../build/limit_eg.png" />
     <div class="btn-group">
       <Button class="start" type="" @click="startWork"
@@ -28,22 +32,26 @@
 </template>
 
 <script>
-import { Input, Button } from 'ant-design-vue'
+import { Input, Button, Select } from 'ant-design-vue'
 import { shell } from 'electron'
-import { updateDataWithDeviations } from './../utils/DataAnalysis.js'
+import { updateDataWithDeviations, updateDataWithCPK } from './../utils/DataAnalysis.js'
 import { writeFile } from 'fs'
+import { reverseArray } from '../utils/utils'
 import xlsx from 'node-xlsx'
 
 export default {
   name: 'LimitLine',
   components: {
     Input,
-    Button
+    Button,
+    ASelect: Select,
+    ASelectOption: Select.Option
   },
   data() {
     return {
       filePath: '',
-      sheet: []
+      sheet: [],
+      type: 'CPK'
     }
   },
   props: ['config'],
@@ -62,16 +70,32 @@ export default {
         data: this.filePath
       })
       this.$ipcRenderer.on('read4limit', arg => {
+        const sheet = arg[0].data
+        let tempSheet = []
+        if (sheet[0][sheet[0].length - 1] >= 10000) {
+          // 横向数据
+          if (_this.type === 'Scatter') {
+            tempSheet = reverseArray(sheet)
+          } else {
+            tempSheet = sheet
+          }
+        } else {
+          if (_this.type === 'CPK') {
+            tempSheet = reverseArray(sheet)
+          } else {
+            tempSheet = sheet
+          }
+        }
         const buffer = xlsx.build([
           {
-            name: 'Ana',
-            data: updateDataWithDeviations(arg[0].data)
+            name: _this.type === 'CPK' ? 'CPK' : '离散度',
+            data: _this.type === 'CPK' ? updateDataWithCPK(tempSheet) : updateDataWithDeviations(tempSheet)
           }
         ])
         writeFile(
           `${
             this.config.workDir
-          }/output/shrekz${new Date().getMinutes()}${new Date().getSeconds()}.xlsx`,
+          }/output/数据分析_${new Date().getMinutes()}${new Date().getSeconds()}.xlsx`,
           buffer,
           err => {
             if (err) {

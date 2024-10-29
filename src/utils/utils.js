@@ -116,7 +116,11 @@ const reverseArray = (arr) => {
   }
   for (let i = 0; i < arr.length; i++) {
     for (var j = 0; j < arr[i].length; j++) {
-      temp[j][i] = arr[i][j] || ''
+      if (arr[i][j] === undefined || arr[i][j] === null) {
+        temp[j][i] = ''
+      } else {
+        temp[j][i] = arr[i][j]
+      }
     }
   }
   return temp

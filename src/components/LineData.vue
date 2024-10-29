@@ -144,7 +144,6 @@ export default {
             })
             console.log(Math.floor(i / files.length * 100) + '%')
           })
-          console.log(resSheet)
           resSheet.forEach((sheet, sheetIndex) => {
             sheet.forEach((item, itemIndex) => {
               sheets.push({

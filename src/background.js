@@ -27,7 +27,7 @@ Menu.setApplicationMenu(null)
 async function createWindow () {
   // Create the browser window.
   const win = new BrowserWindow({
-    width: 594,
+    width: 644,
     height: 677,
     icon: '../logo.ico',
     resizable: isDevelopment,
