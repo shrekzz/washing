@@ -1,6 +1,6 @@
 {
   "name": "washing",
-  "version": "0.1.15",
+  "version": "0.1.15-atalanta",
   "author": "shrekz",
   "private": true,
   "scripts": {
@@ -24,6 +24,7 @@
     "less-loader": "6.0.0",
     "node-cmd": "^5.0.0",
     "node-xlsx": "^0.17.2",
+    "robotjs": "^0.6.0",
     "serialport": "^10.4.0",
     "vue": "^2.6.11"
   },
