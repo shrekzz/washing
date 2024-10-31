@@ -68,6 +68,7 @@ const ApData = () => import('./components/ApData.vue')
 const DataAnalysis = () => import('./components/DataAnalysis.vue')
 const Setting = () => import('./components/Setting.vue')
 const SerialPort = () => import('./components/SerialPort.vue')
+const AutoFaq = () => import('./components/AutoFaq.vue')
 
 export default {
   name: 'App',
@@ -82,7 +83,8 @@ export default {
     AMenuItem: Menu.Item,
     ADrawer: Drawer,
     DataAnalysis,
-    SerialPort
+    SerialPort,
+    AutoFaq
   },
   methods: {
     callback (key) {
@@ -177,6 +179,12 @@ export default {
           tab: '串口工具',
           menuContent: '串口',
           tabContent: 'serial-port'
+        },
+        {
+          key: 'autofaq',
+          tab: '自动输入',
+          menuContent: '自动',
+          tabContent: 'auto-faq'
         }
       ],
       activePanes: [],
