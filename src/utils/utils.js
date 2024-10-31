@@ -7,6 +7,14 @@ const timeFormat = (time) => {
   const minutes = time.getMinutes() >= 10 ? time.getMinutes() : '0' + time.getMinutes()
   return year + '/' + month + '/' + date + ' ' + hours + ':' + minutes
 }
+
+const MinutesFormat = (time) => {
+  const hours = time.getHours()
+  const minutes = time.getMinutes() >= 10 ? time.getMinutes() : '0' + time.getMinutes()
+  const seconds = time.getSeconds() >= 10 ? time.getSeconds() : '0' + time.getSeconds()
+  const milliseconds = time.getMilliseconds() >= 10 ? (time.getMilliseconds() < 100 ? '0' + time.getMilliseconds() : time.getMilliseconds()) : '00' + time.getMilliseconds()
+  return hours + ':' + minutes + ':' + seconds + '.' + milliseconds
+}
 // 文件大小格式化
 const sizeFormat = (size) => {
   return (Math.floor(size / 1024) || 0).toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,') + ' KB'
@@ -40,40 +48,50 @@ const handleSheetList = sheetlist => {
       }
     }
   }
-  return start
+  return [{ name: 'ANC曲线', data: start }]
 }
 
 // soundcheck
 const handleSouncheck = sheetlist => {
   const start = []
   sheetlist.forEach((item, index) => {
-    // if (index === 1) {
-    //   item.data[2][0] = item.name
-    //   for (let j = 0; j < item.data.length; j++) {
-    //     start.push(item.data[j].slice(1, 3))
-    //   }
-    // }
-    // if (index > 1) {
-    //   item.data[2][0] = item.name
-    //   for (let i = 0; i < item.data.length; i++) {
-    //     start[i].push(item.data[i][2])
-    //   }
-    // }
-    item.data[2][0] = item.name
     if (index === 1) {
-      start.push(item.data[1])
-      start.push(item.data[2])
+      item.data[0][2] = item.name
+      for (let j = 0; j < item.data.length; j++) {
+        start.push(item.data[j].slice(1, 3))
+      }
     }
     if (index > 1) {
-      start.push(item.data[2])
+      item.data[0][2] = item.name
+      for (let i = 0; i < item.data.length; i++) {
+        start[i].push(item.data[i][2])
+      }
     }
   })
-  // return reverseArray(start.map(item => {
-  //   return [item[0]].concat(item.slice(1).reverse())
-  // }))
-  return start.map(item => {
+  start.map(item => {
     return [item[0]].concat(item.slice(1).reverse())
   })
+  return [{ name: 'ANC曲线', data: start }]
+}
+const handleMegasig = sheetlist => {
+  const start = []
+  const indices = sheetlist[0].data[0].reduce((acc, current, index) => {
+    if (current === 'Result Info:') {
+      acc.push(index)
+    }
+    return acc
+  }, [])
+  for (let i = 0; i < indices.length; i++) {
+    const temp = []
+    for (let j = 0; j < sheetlist[0].data.length; j++) {
+      temp.push(sheetlist[0].data[j].slice(indices[i], indices[i + 1]))
+    }
+    start.push({
+      name: temp[3][0].replace(/[\\:/?*[\]]/g, ''),
+      data: temp
+    })
+  }
+  return start
 }
 // 生成二维数组
 const createArray = (x, y) => {
@@ -98,7 +116,11 @@ const reverseArray = (arr) => {
   }
   for (let i = 0; i < arr.length; i++) {
     for (var j = 0; j < arr[i].length; j++) {
-      temp[j][i] = arr[i][j] || ''
+      if (arr[i][j] === undefined || arr[i][j] === null) {
+        temp[j][i] = ''
+      } else {
+        temp[j][i] = arr[i][j]
+      }
     }
   }
   return temp
@@ -136,4 +158,4 @@ const scale = (col, row) => {
   return 'A1:' + res + row
 }
 
-export { timeFormat, sizeFormat, handleSheetList, handleSouncheck, reverseArray, createArray, BESConfig, scale }
+export { timeFormat, sizeFormat, handleSheetList, handleSouncheck, handleMegasig, reverseArray, createArray, BESConfig, scale, MinutesFormat }

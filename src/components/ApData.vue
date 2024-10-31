@@ -2,13 +2,6 @@
   <div class="ap-data">
     <div class="title">🙎‍♂️拖入文件进行处理 <Icon class="refresh" type="reload" @click="readDir"/></div>
     <div class="selector">
-      <div>
-        数据类型：
-        <a-select :value="dataType" style="width: 120px;marginBottom: 10px;marginTop: 10px" @change="selectType">
-          <a-select-option value="AP">AP</a-select-option>
-          <a-select-option value="Soundcheck">Soundcheck</a-select-option>
-        </a-select>
-      </div>
       <Checkbox :checked="isDraw" @change="isDraw = !isDraw">生成图表</Checkbox>
     </div>
     <div class="fileListBox" @drop="dropEvent($event)" @dragover.prevent="" >
@@ -41,8 +34,8 @@
 <script>
 import { Button, Icon, Select, Checkbox } from 'ant-design-vue'
 import { basename } from 'path'
-import { copyFile, existsSync, mkdir, readdir, stat, unlink, writeFile } from 'fs'
-import { timeFormat, sizeFormat, handleSheetList, handleSouncheck, scale } from '../utils/utils'
+import { copyFile, existsSync, mkdir, readdir, stat, unlink, writeFile, watch } from 'fs'
+import { timeFormat, sizeFormat, handleSheetList, handleSouncheck, handleMegasig, scale } from '../utils/utils'
 import { shell } from 'electron'
 import xlsx from 'node-xlsx'
 import { exec } from 'child_process'
@@ -63,7 +56,6 @@ export default {
       WORK: this.config.workDir,
       WORK_DIR: this.config.workDir + 'input\\',
       OUTPUT_DIR: this.config.workDir + 'output\\',
-      dataType: 'AP',
       isDraw: false
     }
   },
@@ -161,18 +153,32 @@ export default {
       const _this = this
       readdir(_this.WORK_DIR, (err, files) => {
         if (err) {
+          _this.$message.info(err)
           logger.error(err)
+        }
+        if (files.some(file => file.startsWith('~$'))) {
+          _this.$message.warning(' 😨 存在临时文件，退出处理。')
+          return // 找到以 ~$ 开头的文件，退出函数
         }
         if (files && files.length >= 1) {
           _this.$emit('show-loading', true)
-          files.forEach(file => {
-            const path = `${_this.WORK_DIR}${file}`
-            _this.$ipcRenderer.send('message-to-renderer', { type: 'ap2worker', data: path })
-            _this.$ipcRenderer.on('read4ap', (sheetlist) => {
-              const resArr = _this.dataType === 'AP' ? handleSheetList(sheetlist) : handleSouncheck(sheetlist)
-              const buffer = xlsx.build([{ name: 'ANC曲线', data: resArr }])
+          const path = `${_this.WORK_DIR}`
+          const filenames = files.map(file => path + file)
+          _this.$ipcRenderer.send('message-to-renderer', { type: 'ap2worker', data: filenames })
+          _this.$ipcRenderer.on('read4ap', sheetList => {
+            sheetList.forEach((sheet, index) => {
+              // const resArr = sheet[0].name === 'Display' ? handleSouncheck(sheet) : handleSheetList(sheet)
+              let resArr = []
+              if (sheet[0].name === 'Display') {
+                resArr = handleSouncheck(sheet)
+              } else if (sheet[0].name.includes('_ALL')) {
+                resArr = handleMegasig(sheet)
+              } else {
+                resArr = handleSheetList(sheet)
+              }
+              const buffer = xlsx.build(resArr)
               const time = timeFormat(new Date()).split('').filter(item => !isNaN(parseInt(item))).join('')
-              const outputFileName = path.replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlsx')
+              const outputFileName = filenames[index].replace(/input/, 'output').replace(/\./, `-${time}.`).replace(/csv/, 'xlsx')
               writeFile(outputFileName, buffer, err => {
                 if (err) {
                   logger.error(err)
@@ -185,9 +191,9 @@ export default {
                 _this.draw(outputFileName, resArr[0].length, resArr.length)
               }
               logger.info('处理 ' + outputFileName + ' 完成')
-              _this.$message.info(' 😀 数据处理完毕了！')
             })
           })
+          _this.$message.info(' 😀 数据处理完毕了！')
         } else {
           _this.$message.info(' 🙄 工作目录为空！')
         }
@@ -232,6 +238,16 @@ export default {
   },
   mounted () {
     this.readDir()
+    this.watcher = watch(this.WORK_DIR, eventType => {
+      if (eventType === 'change' || eventType === 'unlink') {
+        this.readDir()
+      }
+    })
+  },
+  beforeDestroy () {
+    if (this.watcher) {
+      this.watcher.close()
+    }
   }
 }
 </script>

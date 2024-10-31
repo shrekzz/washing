@@ -27,7 +27,7 @@ Menu.setApplicationMenu(null)
 async function createWindow () {
   // Create the browser window.
   const win = new BrowserWindow({
-    width: 594,
+    width: 644,
     height: 677,
     icon: '../logo.ico',
     resizable: isDevelopment,
@@ -38,6 +38,11 @@ async function createWindow () {
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION
     }
   })
+
+  ipcMain.handle('get-userdata-path', async () => {
+    return app.getPath('userData')
+  })
+
   readFile('./config.json', (err, data) => {
     if (err) {
       logger.error(err)
@@ -134,7 +139,7 @@ app.on('ready', async () => {
 })
 
 //记录日志
-ipcMain.handle("message", async (event, arg) => {
+ipcMain.on("message", async (event, arg) => {
   //与渲染进程通信
   return new Promise((resolve, reject) => {
     logger.info(arg);

@@ -55,18 +55,20 @@
 </template>
 
 <script>
-import { shell } from 'electron'
+import { shell, ipcRenderer } from 'electron'
 import { Tabs, Tooltip, Menu, Drawer } from 'ant-design-vue'
-import { writeFile, existsSync, readFile } from 'fs'
+import { writeFile, existsSync, readFile, mkdir } from 'fs'
 import { logger } from './utils/log.js'
 import { version } from '../package.json'
+import Vue from 'vue'
 
 // 按需加载
 const LineData = () => import('./components/LineData.vue')
 const ApData = () => import('./components/ApData.vue')
-const AutoFaq = () => import('./components/AutoFaq.vue')
+const DataAnalysis = () => import('./components/DataAnalysis.vue')
 const Setting = () => import('./components/Setting.vue')
-const LimitLine = () => import('./components/LimitLine.vue')
+const SerialPort = () => import('./components/SerialPort.vue')
+const AutoFaq = () => import('./components/AutoFaq.vue')
 
 export default {
   name: 'App',
@@ -75,13 +77,14 @@ export default {
     ATabs: Tabs,
     ATabPane: Tabs.TabPane,
     ApData,
-    AutoFaq,
     Setting,
     ATooltip: Tooltip,
     AMenu: Menu,
     AMenuItem: Menu.Item,
-    LimitLine,
-    ADrawer: Drawer
+    ADrawer: Drawer,
+    DataAnalysis,
+    SerialPort,
+    AutoFaq
   },
   methods: {
     callback (key) {
@@ -133,7 +136,7 @@ export default {
     setConfig (cfg = { workDir: 'D:/WASHING_WORK/', defaultTabs: [], autoUpdateFlag: false }) {
       this.configuration = cfg
       const config = JSON.stringify(cfg)
-      writeFile('./config.json', config, err => {
+      writeFile(`${this.$userDataPath}/config.json`, config, err => {
         if (err) {
           logger.error(err)
         }
@@ -166,16 +169,22 @@ export default {
           tabContent: 'line-data'
         },
         {
-          key: 'auto',
-          tab: '自动输入FAQ',
-          menuContent: 'Auto',
-          tabContent: 'auto-faq'
+          key: 'Anal',
+          tab: '数据分析',
+          menuContent: '分析',
+          tabContent: 'data-analysis'
         },
         {
-          key: 'limit',
-          tab: '自动生成框线',
-          menuContent: '框线',
-          tabContent: 'limit-line'
+          key: 'serial',
+          tab: '串口工具',
+          menuContent: '串口',
+          tabContent: 'serial-port'
+        },
+        {
+          key: 'autofaq',
+          tab: '自动输入',
+          menuContent: '自动',
+          tabContent: 'auto-faq'
         }
       ],
       activePanes: [],
@@ -184,16 +193,23 @@ export default {
       version: version
     }
   },
-  created () {
-    if (!existsSync('./config.json')) {
+  async created () {
+    try {
+      const userDataPath = await ipcRenderer.invoke('get-userdata-path')
+      Vue.prototype.$userDataPath = userDataPath
+    } catch (error) {
+      console.error('无法获取用户数据路径:', error)
+    }
+    if (!existsSync(`${this.$userDataPath}/config.json`)) {
       this.setConfig()
     } else {
-      readFile('./config.json', (err, data) => {
+      readFile(`${this.$userDataPath}/config.json`, (err, data) => {
         if (err) {
           logger.error(err)
         } else {
           this.configuration = JSON.parse(data)
           const defaultTabs = this.configuration.defaultTabs
+          const workDir = this.configuration.workDir
           for (let i = 0; i < defaultTabs.length; i++) {
             for (let j = 0; j < this.panes.length; j++) {
               if (this.panes[j].tab === defaultTabs[i]) {
@@ -202,7 +218,24 @@ export default {
               }
             }
           }
-          this.tabs = [this.activePanes[0].key]
+          this.tabs = [this.activePanes.length !== 0 ? this.activePanes[0].key : '']
+          if (!existsSync(workDir)) {
+            mkdir(workDir, err => {
+              if (err) {
+                logger.error(err)
+              }
+              mkdir(`${workDir}\\input`, err => {
+                if (err) {
+                  logger.error(err)
+                }
+              })
+              mkdir(`${workDir}\\output`, err => {
+                if (err) {
+                  logger.error(err)
+                }
+              })
+            })
+          }
         }
       })
     }

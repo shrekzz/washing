@@ -7,8 +7,14 @@
         <a-select-option value="wuqi">wuqi</a-select-option>
         <a-select-option value="Airoha">Airoha</a-select-option>
         <a-select-option value="Lanxun">Lanxun</a-select-option>
+        <a-select-option value="customized">自定义</a-select-option>
         <a-select-option value="BES Config">BES Config</a-select-option>
       </a-select>
+      <div v-if="this.toolType === 'customized'">
+        <Input addonBefore="X平移" style="width: 33.3%;" type="number" v-model.number="XMOVE"></Input>
+        <Input addonBefore="Y1平移" style="width: 33.3%;" type="number" v-model.number="Y1MOVE"></Input>
+        <Input addonBefore="Y2平移" style="width: 33.3%;" type="number" v-model.number="Y2MOVE"></Input>
+      </div>
       <a-textarea style="height: 270px" v-model="text" placeholder="请输入参数"></a-textarea>
     </div>
     <div class="select-config" v-if="toolType === 'BES Config'">
@@ -33,7 +39,8 @@ export default {
   components: {
     ATextarea: Input.TextArea,
     ASelect: Select,
-    ASelectOption: Select.Option
+    ASelectOption: Select.Option,
+    Input
   },
   data () {
     return {
@@ -41,7 +48,10 @@ export default {
       toolType: 'BES',
       FFIIR: [],
       FBIIR: [],
-      stop: false
+      stop: false,
+      XMOVE: 140,
+      Y1MOVE: 40,
+      Y2MOVE: 40
     }
   },
   methods: {
@@ -49,7 +59,7 @@ export default {
       if (this.text !== '') {
         let iirArr = this.text.replace(/,/g, '').replace(/[\n]/g, '').replace(/[\t]/g, ' ').split(' ').filter(item => item !== '').map(item => Number(item))
         iirArr = iirArr.slice(0, iirArr.length - 1)
-        autoMove(iirArr, this.toolType)
+        autoMove(iirArr, this.toolType, this.XMOVE, this.Y1MOVE, this.Y2MOVE)
       }
     },
     selectType (value) {

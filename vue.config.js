@@ -59,6 +59,7 @@ module.exports = {
     pluginOptions: {
         electronBuilder: {
             nodeIntegration: true,
+            externals: ['serialport'],
             builderOptions : {
                 "appId": "com.shrekz",
                 "win": {
@@ -75,7 +76,10 @@ module.exports = {
                   "perMachine": "true"
                 },
                 "asar": true,
-                "publish": ['github']
+                "publish": {
+                    "provider": "github",
+                    "token": "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"
+                }
             }
         }
     },

@@ -43,10 +43,11 @@ const freq2Gain = (arr, r1 = 1, r2 = 2) => {
   iirArr：要输入的数组
   type：ANC工具类型，默认BES，BES不能用tab切换输入，可选（BES、wuqi、Airoda）
 */
-const autoMove = (iirArr, type) => {
+const autoMove = (iirArr, type, XMOVE, Y1MOVE, Y2MOVE) => {
   // 获取鼠标位置
   var mouse = robot.getMousePos()
   const def = mouse.x
+  const defY = mouse.y
   let mouseX = mouse.x
   let mouseY = mouse.y
   let faq = []
@@ -80,6 +81,30 @@ const autoMove = (iirArr, type) => {
       break
     case 'Airoha':
       faq = freq2Gain(setTwoDimensionalArray(iirArr), 1, 2)
+      break
+    case 'customized':
+      faq = freq2Gain(setTwoDimensionalArray(iirArr), 0, 1)
+      for (let x = 0; x < faq.length; x++) {
+        for (let y = 0; y < faq[0].length; y++) {
+          if (y === 1) {
+            mouseY += Y1MOVE
+          } else if (y === 2) {
+            mouseY += Y2MOVE
+          }
+          if (y === 2 && faq[x][y] <= 0.1) {
+            faq[x][y] = 0.1
+          }
+          robot.moveMouse(mouseX, mouseY)
+          robot.mouseClick()
+          const input = String(Math.round(faq[x][y] * 100) / 100)
+          robot.keyTap('a', 'control')
+          clipboard.writeText(input)
+          robot.keyTap('v', 'control')
+        }
+        mouseY = defY
+        // 30
+        mouseX += XMOVE
+      }
       break
     case 'BES Config':
       faq = setTwoDimensionalArray(iirArr)
@@ -134,7 +159,7 @@ const autoMove = (iirArr, type) => {
       break
     }
   }
-  if (!type.includes('BES') && type !== 'Lanxun') {
+  if (!type.includes('BES') && type !== 'Lanxun' && type !== 'customized') {
     console.log('sb')
     for (let x = 0; x < faq.length; x++) {
       for (let y = 0; y < faq[0].length; y++) {
